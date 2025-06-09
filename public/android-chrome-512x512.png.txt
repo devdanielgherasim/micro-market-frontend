@@ -1,0 +1,5 @@
+This is a placeholder file. Please replace it with a proper android-chrome-512x512.png file generated from globe-blue.svg.
+
+Follow the instructions in README_FAVICON.md to create a proper android-chrome-512x512.png file.
+
+The android-chrome-512x512.png file should be a 512x512 pixel PNG version of the globe icon with the theme color #0ea5e9, optimized for Android devices.

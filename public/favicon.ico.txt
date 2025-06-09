@@ -1,0 +1,5 @@
+This is a placeholder file. Please replace it with a proper favicon.ico file generated from globe-blue.svg.
+
+Follow the instructions in README_FAVICON.md to create a proper favicon.ico file.
+
+The favicon.ico file should be a multi-size ICO file containing at least 16x16, 32x32, and 48x48 pixel versions of the globe icon with the theme color #0ea5e9.

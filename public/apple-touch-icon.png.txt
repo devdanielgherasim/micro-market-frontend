@@ -1,0 +1,5 @@
+This is a placeholder file. Please replace it with a proper apple-touch-icon.png file generated from globe-blue.svg.
+
+Follow the instructions in README_FAVICON.md to create a proper apple-touch-icon.png file.
+
+The apple-touch-icon.png file should be a 180x180 pixel PNG version of the globe icon with the theme color #0ea5e9, optimized for Apple devices.

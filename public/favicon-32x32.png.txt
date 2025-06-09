@@ -1,0 +1,5 @@
+This is a placeholder file. Please replace it with a proper favicon-32x32.png file generated from globe-blue.svg.
+
+Follow the instructions in README_FAVICON.md to create a proper favicon-32x32.png file.
+
+The favicon-32x32.png file should be a 32x32 pixel PNG version of the globe icon with the theme color #0ea5e9.
