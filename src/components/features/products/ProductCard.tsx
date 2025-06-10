@@ -1,10 +1,11 @@
 import React, {useState} from 'react';
+import Link from 'next/link';
 
 import {useAuth} from '@/auth/KeycloakProvider';
 import {AuthenticatedOnly, GuestOnly} from '@/components/auth/RoleBasedAccess';
 
-import {purchaseProduct} from '../../../services/orderService';
-import {Product} from '../../../types';
+import {purchaseProduct} from '@/services/orderService';
+import {Product} from '@/types';
 import {Button} from '../../ui/Button';
 
 interface ProductCardProps {
@@ -100,11 +101,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({product, className = ''
                     <span
                         className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">${product.price.toFixed(2)}</span>
                     <span className={`text-xs sm:text-sm font-medium ${
-                        product.inStock
+                        product.available
                             ? 'text-green-600 dark:text-green-400'
                             : 'text-red-600 dark:text-red-400'
                     }`}>
-            {product.inStock ? (
+            {product.available ? (
                 <span className="flex items-center">
                 <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-0.5 sm:mr-1" fill="currentColor" viewBox="0 0 20 20"
                      xmlns="http://www.w3.org/2000/svg">
@@ -128,32 +129,34 @@ export const ProductCard: React.FC<ProductCardProps> = ({product, className = ''
           </span>
                 </div>
                 <div className="flex space-x-2 sm:space-x-3">
-                    <Button
-                        variant="outline"
-                        size="xs"
-                        rounded="md"
-                        className="transition-all duration-300 hover:scale-105"
-                        icon={
-                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            </svg>
-                        }
-                    >
-                        View
-                    </Button>
+                    <Link href={`/products/${product.id}`}>
+                        <Button
+                            variant="outline"
+                            size="xs"
+                            rounded="md"
+                            className="transition-all duration-300 hover:scale-105"
+                            icon={
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                </svg>
+                            }
+                        >
+                            View
+                        </Button>
+                    </Link>
                     {/* Show different buttons based on authentication status */}
                     <AuthenticatedOnly>
                         <Button
                             variant={
                                 purchaseSuccess ? "success" :
-                                    product.inStock ? "primary" : "secondary"
+                                    product.available ? "primary" : "secondary"
                             }
                             size="xs"
                             rounded="md"
-                            disabled={!product.inStock || isPurchasing}
+                            disabled={!product.available || isPurchasing}
                             isLoading={isPurchasing}
                             onClick={handlePurchase}
                             className="transition-all duration-300 hover:scale-105"
@@ -173,7 +176,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({product, className = ''
                         >
                             {isPurchasing ? 'Purchasing...' :
                                 purchaseSuccess ? 'Purchased!' :
-                                    product.inStock ? 'Buy Now' : 'Sold Out'}
+                                    product.available ? 'Buy Now' : 'Sold Out'}
                         </Button>
                     </AuthenticatedOnly>
 
@@ -182,7 +185,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({product, className = ''
                             variant="primary"
                             size="xs"
                             rounded="md"
-                            disabled={!product.inStock}
+                            disabled={!product.available}
                             className="transition-all duration-300 hover:scale-105"
                             onClick={() => login()}
                             icon={
@@ -192,7 +195,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({product, className = ''
                                 </svg>
                             }
                         >
-                            {product.inStock ? 'Login to Buy' : 'Sold Out'}
+                            {product.available ? 'Login to Buy' : 'Sold Out'}
                         </Button>
                     </GuestOnly>
                 </div>

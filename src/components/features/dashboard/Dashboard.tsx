@@ -3,16 +3,13 @@ import { ProductList } from '../products/ProductList';
 import { OrderList } from '../orders/OrderList';
 import { Button } from '../../ui/Button';
 import { useAuth } from '@/auth/KeycloakProvider';
-import { isAdmin, isClient } from '@/auth/roleUtils';
-import { AdminOnly, ClientOnly } from '@/components/auth/RoleBasedAccess';
-import { useOrders } from '../../../hooks/useOrders';
+import { useOrders } from '@/hooks/useOrders';
 
 export const Dashboard: React.FC = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { userProfile } = useAuth();
 
-  // Get user's orders
-  const { data: orders, loading: ordersLoading, error: ordersError, refetch: refetchOrders } = useOrders(
+  const { data: orders, loading: ordersLoading, refetch: refetchOrders } = useOrders(
     userProfile?.id
   );
 

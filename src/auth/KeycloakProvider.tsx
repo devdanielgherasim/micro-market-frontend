@@ -2,8 +2,8 @@
 
 import React, {createContext, ReactNode, useContext, useEffect, useState} from 'react';
 import {initKeycloak} from './keycloak';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
+// @ts-ignore
+// @ts-ignore
 import type Keycloak, {KeycloakLoginOptions, KeycloakLogoutOptions, KeycloakProfile} from 'keycloak-js';
 
 
@@ -46,12 +46,7 @@ interface KeycloakProviderProps {
 }
 
 export const KeycloakProvider: React.FC<KeycloakProviderProps> = ({
-                                                                      children,
-                                                                      initOptions = {
-                                                                          // No onLoad option to prevent automatic login
-                                                                          checkLoginIframe: false,
-                                                                          silentCheckSsoRedirectUri: typeof window !== 'undefined' ? `${window.location.origin}/silent-check-sso.html` : '',
-                                                                      }
+                                                                      children
                                                                   }) => {
     const [initialized, setInitialized] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -62,7 +57,6 @@ export const KeycloakProvider: React.FC<KeycloakProviderProps> = ({
     const [token, setToken] = useState<string | undefined>(undefined);
 
     useEffect(() => {
-        // Prevent multiple initialization attempts
         if (initialized) {
             return;
         }
@@ -76,14 +70,12 @@ export const KeycloakProvider: React.FC<KeycloakProviderProps> = ({
                     throw new Error('Failed to initialize Keycloak instance');
                 }
 
-                // Configure refresh interval - minimum 10 seconds
-                const MIN_VALIDITY = 30; // Minimum token validity in seconds
+                const MIN_VALIDITY = 30;
 
-                // Initialize Keycloak with minimal options to prevent automatic login
                 const initialized = await keycloakInstance.init({
                     enableLogging: process.env.NODE_ENV === 'development',
-                    pkceMethod: 'S256', // More secure PKCE method
-                    checkLoginIframe: false, // Disable iframe checking for better security
+                    pkceMethod: 'S256',
+                    checkLoginIframe: false,
                     silentCheckSsoRedirectUri: typeof window !== 'undefined' ? `${window.location.origin}/silent-check-sso.html` : '',
                 });
 
@@ -93,37 +85,70 @@ export const KeycloakProvider: React.FC<KeycloakProviderProps> = ({
 
                 setKeycloak(keycloakInstance);
                 setInitialized(initialized);
-                setIsAuthenticated(initialized ? keycloakInstance.authenticated || false : false);
+                setIsAuthenticated(initialized ? keycloakInstance.authenticated ?? false : false);
                 setToken(keycloakInstance.token);
+
+                keycloakInstance.onAuthSuccess = async () => {
+                    if (process.env.NODE_ENV === 'development') {
+                        console.log('Authentication success event');
+                    }
+                    setIsAuthenticated(true);
+                    setToken(keycloakInstance.token);
+
+                    try {
+                        const profile = await keycloakInstance.loadUserProfile();
+                        setUserProfile(profile);
+                        if (process.env.NODE_ENV === 'development') {
+                            console.log('User profile loaded after auth success');
+                        }
+                    } catch (profileError) {
+                        console.error('Failed to load user profile after auth success:', profileError);
+                    }
+                };
+
+                keycloakInstance.onAuthRefreshSuccess = () => {
+                    if (process.env.NODE_ENV === 'development') {
+                        console.log('Token refresh success event');
+                    }
+                    setIsAuthenticated(true);
+                    setToken(keycloakInstance.token);
+                };
+
+                keycloakInstance.onAuthLogout = () => {
+                    if (process.env.NODE_ENV === 'development') {
+                        console.log('Logout event');
+                    }
+                    setIsAuthenticated(false);
+                    setUserProfile(null);
+                    setToken(undefined);
+                };
 
                 if (initialized && keycloakInstance.authenticated) {
                     try {
-                        // Load user profile information
                         const profile = await keycloakInstance.loadUserProfile();
                         setUserProfile(profile);
                         if (process.env.NODE_ENV === 'development') {
                             console.log('User authenticated successfully');
                         }
 
-                        // Setup token refresh mechanism
                         const updateTokenInterval = setInterval(() => {
                             keycloakInstance.updateToken(MIN_VALIDITY)
-                                .then((refreshed) => {
+                                .then((refreshed: any) => {
                                     if (refreshed) {
                                         if (process.env.NODE_ENV === 'development') {
                                             console.log('Token was successfully refreshed');
                                         }
                                         setToken(keycloakInstance.token);
+                                        setIsAuthenticated(true);
                                     }
                                 })
-                                .catch((error) => {
+                                .catch((error: any) => {
                                     console.error('Failed to refresh the token, or the session has expired', error);
                                     clearInterval(updateTokenInterval);
                                     keycloakInstance.logout();
                                 });
-                        }, 60000); // Check for refresh every minute
+                        }, 60000);
 
-                        // Clear interval on component unmount
                         return () => {
                             clearInterval(updateTokenInterval);
                         };
@@ -131,17 +156,17 @@ export const KeycloakProvider: React.FC<KeycloakProviderProps> = ({
                         console.error('Failed to load user profile:', profileError);
                     }
 
-                    // Handle token expiration
                     keycloakInstance.onTokenExpired = () => {
                         if (process.env.NODE_ENV === 'development') {
                             console.log('Token expired, attempting refresh...');
                         }
-                        keycloakInstance.updateToken(MIN_VALIDITY).then((refreshed) => {
+                        keycloakInstance.updateToken(MIN_VALIDITY).then((refreshed: any) => {
                             if (refreshed) {
                                 if (process.env.NODE_ENV === 'development') {
                                     console.log('Token refreshed successfully after expiration');
                                 }
                                 setToken(keycloakInstance.token);
+                                setIsAuthenticated(true);
                             } else {
                                 const expiryTime = keycloakInstance.tokenParsed?.exp || 0;
                                 const currentTime = Math.floor(new Date().getTime() / 1000);
@@ -151,17 +176,16 @@ export const KeycloakProvider: React.FC<KeycloakProviderProps> = ({
                                     console.log(`Token not refreshed, valid for ${timeRemaining} seconds`);
                                 }
                             }
-                        }).catch((error) => {
+                        }).catch((error: any) => {
                             console.error('Failed to refresh expired token', error);
-                            // Handle session timeout - redirect to login
                             keycloakInstance.logout();
                         });
                     };
 
-                    // Handle authentication errors
-                    keycloakInstance.onAuthError = (errorData) => {
+                    keycloakInstance.onAuthError = (errorData: any) => {
                         console.error('Authentication error:', errorData);
                         setError(new Error('Authentication error occurred'));
+                        setIsAuthenticated(false);
                     };
                 }
             } catch (err) {
@@ -175,7 +199,6 @@ export const KeycloakProvider: React.FC<KeycloakProviderProps> = ({
         initAuth();
 
         return () => {
-            // Cleanup
             if (keycloak) {
                 keycloak.onTokenExpired = undefined;
                 keycloak.onAuthError = undefined;
@@ -226,25 +249,20 @@ export const KeycloakProvider: React.FC<KeycloakProviderProps> = ({
                 if (process.env.NODE_ENV === 'development') {
                     console.log('Logging out user...');
                 }
-                // Prepare for logout - clear local state first
                 setIsAuthenticated(false);
                 setUserProfile(null);
                 setToken(undefined);
 
-                // Prepare logout options
                 const logoutOptions: KeycloakLogoutOptions = {
-                    redirectUri: options?.redirectUri || window.location.origin
+                    redirectUri: options?.redirectUri ?? window.location.origin
                 };
 
-                // Perform actual logout with Keycloak
                 keycloak.logout(logoutOptions);
             } catch (error) {
                 console.error('Error during logout:', error);
-                // Fallback - force reload to the homepage if Keycloak logout fails
                 try {
                     window.localStorage.removeItem('kc-callback');
                     window.localStorage.removeItem('kc-login-redirect');
-                    // Force reload to clear any session data
                     window.location.href = window.location.origin;
                 } catch (fallbackError) {
                     console.error('Fallback logout also failed:', fallbackError);

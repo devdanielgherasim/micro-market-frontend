@@ -1,5 +1,5 @@
 import React from 'react';
-import { Order } from '../../../types';
+import { Order } from '@/types';
 import { Button } from '../../ui/Button';
 
 interface OrderCardProps {
@@ -148,8 +148,8 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order, className = '' }) =
         <div className="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-2 sm:p-3 shadow-sm">
           <h4 className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">Shipping Address</h4>
           <address className="not-italic text-xs sm:text-sm text-gray-600 dark:text-gray-300">
-            {order.shippingAddress.street}<br />
-            {order.shippingAddress.city}, {order.shippingAddress.zipCode}
+            {order?.shippingAddress?.street}<br />
+            {order?.shippingAddress?.city}, {order?.shippingAddress?.zipCode}
           </address>
         </div>
       </div>

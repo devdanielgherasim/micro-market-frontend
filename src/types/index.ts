@@ -1,21 +1,22 @@
-// Type definitions for the application
-
-// Product types
 export interface Product {
     id: string;
     name: string;
     description: string;
     price: number;
     category: string;
+    version: string;
+    releaseDate: string;
+    publisher: string;
+    features: string;
+    requirements: string;
     imageUrl?: string;
-    inStock: boolean;
+    available: boolean;
 }
 
 export interface OrderProduct {
     productId: string;
     quantity: number;
 }
-
 
 export interface ShippingAddress {
     street: string;
@@ -40,7 +41,24 @@ export interface ApiResponse<T> {
     loading: boolean;
 }
 
-// API error response format from the server
+export interface PaginationMetadata {
+    page: number;
+    size: number;
+    totalElements: number;
+    totalPages: number;
+    first: boolean;
+    last: boolean;
+}
+
+export interface PageResponse<T> {
+    content: T[];
+    pagination: PaginationMetadata;
+}
+
+export interface PaginatedApiResponse<T> extends ApiResponse<T[]> {
+    pagination?: PaginationMetadata;
+}
+
 export interface ApiErrorResponse {
     message: string;
     status: number;
@@ -54,12 +72,4 @@ export interface User {
     firstName?: string;
     lastName?: string;
     roles: string[];
-}
-
-export interface AuthState {
-    isAuthenticated: boolean;
-    user: User | null;
-    token: string | null;
-    loading: boolean;
-    error: string | null;
 }

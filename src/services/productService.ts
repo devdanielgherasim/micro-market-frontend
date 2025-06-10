@@ -1,15 +1,18 @@
-import {Product} from '../types';
+import {PageResponse, Product} from '../types';
 import {API_ENDPOINTS} from '../config/api';
 import {ApiError, fetchWithTimeout, handleApiError} from '../utils/api';
 
 /**
- * Fetches all products from the API
- * @returns Promise resolving to an array of products
+ * Fetches products from the API with pagination
+ * @param page - The page number (0-based, default: 0)
+ * @param size - The page size (default: 20)
+ * @returns Promise resolving to a PageResponse containing products and pagination metadata
  * @throws Error if the request fails
  */
-export async function getProducts(): Promise<Product[]> {
+export async function getProducts(page: number = 0, size: number = 20): Promise<PageResponse<Product>> {
     try {
-        return await fetchWithTimeout<Product[]>(API_ENDPOINTS.products);
+        const url = `${API_ENDPOINTS.products}?page=${page}&size=${size}`;
+        return await fetchWithTimeout<PageResponse<Product>>(url);
     } catch (error) {
         if (process.env.NODE_ENV === 'development') {
             console.error('Error fetching products:', error);

@@ -1,13 +1,8 @@
 import {useCallback, useEffect, useState} from 'react';
-import {AuditLogEntry, AuditLogFilter} from '../types/audit';
-import {ApiError} from '../utils/api';
-import {getAuditLogs} from '../services/auditService';
+import {AuditLogEntry, AuditLogFilter} from '@/types/audit';
+import {ApiError} from '@/utils/api';
+import {getAuditLogs} from '@/services/auditService';
 
-/**
- * Hook for fetching and filtering audit logs
- * @param initialFilter - Initial filter settings
- * @returns Object containing audit data, loading state, error, and functions to manage filtering and pagination
- */
 export function useAuditLogs(initialFilter?: AuditLogFilter) {
     const [data, setData] = useState<AuditLogEntry[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
@@ -29,7 +24,7 @@ export function useAuditLogs(initialFilter?: AuditLogFilter) {
         } catch (err) {
             console.error('Failed to fetch audit logs:', err);
             if (err instanceof ApiError) {
-                setError(`${err.message}${err.code ? ` (${err.code})` : ''}`);
+                setError(`${err.message}${err.code ?? ''}`);
             } else if (err instanceof Error) {
                 setError(err.message);
             } else {
@@ -59,7 +54,7 @@ export function useAuditLogs(initialFilter?: AuditLogFilter) {
         if (pagination.hasMore) {
             setFilter(currentFilter => ({
                 ...currentFilter,
-                page: (currentFilter.page || 1) + 1
+                page: (currentFilter.page ?? 1) + 1
             }));
         }
     }, [pagination.hasMore]);
@@ -68,13 +63,13 @@ export function useAuditLogs(initialFilter?: AuditLogFilter) {
     const prevPage = useCallback(() => {
         setFilter(currentFilter => ({
             ...currentFilter,
-            page: Math.max((currentFilter.page || 1) - 1, 1)
+            page: Math.max((currentFilter.page ?? 1) - 1, 1)
         }));
     }, []);
 
     // Reset filters to initial state
     const resetFilters = useCallback(() => {
-        setFilter(initialFilter || {page: 1, limit: 20});
+        setFilter(initialFilter ?? {page: 1, limit: 20});
     }, [initialFilter]);
 
     return {

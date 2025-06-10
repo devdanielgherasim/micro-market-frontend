@@ -1,7 +1,7 @@
 import React from 'react';
 import { OrderCard } from './OrderCard';
 import { Button } from '../../ui/Button';
-import { useOrders } from '../../../hooks/useOrders';
+import { useOrders } from '@/hooks/useOrders';
 
 interface OrderListProps {
   customerId?: string;

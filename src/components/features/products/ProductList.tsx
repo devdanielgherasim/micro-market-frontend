@@ -1,22 +1,44 @@
 import React from 'react';
 import { ProductCard } from './ProductCard';
 import { Button } from '../../ui/Button';
-import { useProducts } from '../../../hooks/useProducts';
+import { Pagination } from '../../ui/Pagination';
+import { useProducts } from '@/hooks/useProducts';
 
 interface ProductListProps {
   className?: string;
+  initialPage?: number;
+  initialPageSize?: number;
 }
 
 /**
- * Component for displaying a list of products with loading and error states
+ * Component for displaying a list of products with pagination, loading and error states
  */
-export const ProductList: React.FC<ProductListProps> = ({ className = '' }) => {
-  const { data: products, loading, error, refetch } = useProducts();
+export const ProductList: React.FC<ProductListProps> = ({ 
+  className = '',
+  initialPage = 0,
+  initialPageSize = 20
+}) => {
+  const { 
+    data: products, 
+    pagination, 
+    loading, 
+    error, 
+    refetch, 
+    goToPage 
+  } = useProducts({ initialPage, initialPageSize });
 
   return (
     <div className={`space-y-3 sm:space-y-4 ${className}`}>
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0">
-        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Products</h2>
+        <div>
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Products</h2>
+          {pagination && (
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Showing {pagination.page * pagination.size + 1}-
+              {Math.min((pagination.page + 1) * pagination.size, pagination.totalElements)} of {pagination.totalElements} products
+            </p>
+          )}
+        </div>
         <Button 
           onClick={() => refetch()} 
           isLoading={loading}
@@ -45,11 +67,25 @@ export const ProductList: React.FC<ProductListProps> = ({ className = '' }) => {
           <div className="animate-spin rounded-full h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12 border-2 border-blue-500 dark:border-blue-400 border-t-transparent shadow-md"></div>
         </div>
       ) : products.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+
+          {pagination && pagination.totalPages > 1 && (
+            <div className="mt-6 sm:mt-8">
+              <Pagination
+                currentPage={pagination.page}
+                totalPages={pagination.totalPages}
+                onPageChange={goToPage}
+                isLoading={loading}
+                className="mt-4"
+              />
+            </div>
+          )}
+        </>
       ) : (
         <div className="text-center py-6 sm:py-8 md:py-10 text-sm sm:text-base text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50 rounded-lg shadow-sm p-4 sm:p-6">
           <svg className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

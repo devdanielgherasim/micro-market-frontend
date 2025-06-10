@@ -8,7 +8,6 @@ import {OrderList} from '../orders/OrderList';
 import {useAuth} from '@/auth/KeycloakProvider';
 import {AuthenticatedOnly} from '@/components/auth/RoleBasedAccess';
 
-
 /**
  * Main home page component
  */

@@ -1,6 +1,6 @@
-import {Order, OrderProduct, Product} from '../types';
-import {API_ENDPOINTS} from '../config/api';
-import {ApiError, fetchWithTimeout, handleApiError} from '../utils/api';
+import {Order, OrderProduct, Product} from '@/types';
+import {API_ENDPOINTS} from '@/config/api';
+import {ApiError, fetchWithTimeout, handleApiError} from '@/utils/api';
 
 /**
  * Fetches all orders from the API
@@ -48,27 +48,20 @@ export async function getOrderById(id: string): Promise<Order> {
     }
 }
 
-/**
- * Creates a new order
- * @param order - The order data without ID
- * @returns Promise resolving to the created order
- * @throws ApiError if the request fails
- */
 export async function createOrder(order: Omit<Order, 'id' | 'orderDate'>): Promise<Order> {
     try {
-        // Convert the frontend order format to the backend OrderCreateDTO format
         const orderCreateDTO = {
             customerId: order.customerId,
-            shippingAddress: order.shippingAddress ? 
-                `${order.shippingAddress.street}, ${order.shippingAddress.city}, ${order.shippingAddress.zipCode}` : 
+            shippingAddress: order.shippingAddress ?
+                `${order.shippingAddress.street}, ${order.shippingAddress.city}, ${order.shippingAddress.zipCode}` :
                 '',
-            billingAddress: '',  // Default to empty if not provided
-            paymentMethod: 'credit_card',  // Default payment method
-            paymentId: '',  // Default to empty if not provided
+            billingAddress: '',
+            paymentMethod: 'credit_card',
+            paymentId: '',
             items: order.products.map(product => ({
-                productId: parseInt(product.productId),  // Convert string ID to number
-                productName: '',  // Will be filled by backend
-                price: 0,  // Will be calculated by backend
+                productId: product.productId,
+                productName: '',
+                price: 0,
                 quantity: product.quantity
             }))
         };
@@ -83,13 +76,6 @@ export async function createOrder(order: Omit<Order, 'id' | 'orderDate'>): Promi
     }
 }
 
-/**
- * Updates an order's status
- * @param id - The order ID
- * @param status - The new status
- * @returns Promise resolving to the updated order
- * @throws ApiError if the request fails
- */
 export async function updateOrderStatus(id: string, status: Order['status']): Promise<Order> {
     try {
         if (!id) throw new ApiError('Order ID is required', 400);
@@ -102,23 +88,15 @@ export async function updateOrderStatus(id: string, status: Order['status']): Pr
     }
 }
 
-/**
- * Purchases a product for a customer
- * @param product - The product to purchase
- * @param customerId - The customer ID
- * @param quantity - The quantity to purchase (default: 1)
- * @returns Promise resolving to the created order
- * @throws ApiError if the request fails
- */
 export async function purchaseProduct(
-    product: Product, 
-    customerId: string, 
+    product: Product,
+    customerId: string,
     quantity: number = 1
 ): Promise<Order> {
     try {
         if (!product) throw new ApiError('Product is required', 400);
         if (!customerId) throw new ApiError('Customer ID is required', 400);
-        if (!product.inStock) throw new ApiError('Product is out of stock', 400);
+        if (!product.available) throw new ApiError('Product is out of stock', 400);
         if (quantity <= 0) throw new ApiError('Quantity must be greater than 0', 400);
 
         const orderProduct: OrderProduct = {
@@ -126,18 +104,15 @@ export async function purchaseProduct(
             quantity: quantity
         };
 
-        // Calculate expiration date (30 days from now)
         const expirationDate = new Date();
         expirationDate.setDate(expirationDate.getDate() + 30);
 
-        // Create order with required fields for the backend
         const order: Omit<Order, 'id' | 'orderDate'> = {
             customerId,
             products: [orderProduct],
-            status: 'pending',  // Use 'pending' instead of 'completed' as initial status
+            status: 'pending',
             totalAmount: product.price * quantity,
             expirationDate: expirationDate.toISOString(),
-            // Add empty shippingAddress to satisfy the backend requirements
             shippingAddress: {
                 street: '',
                 city: '',

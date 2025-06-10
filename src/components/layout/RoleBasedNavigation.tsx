@@ -147,7 +147,7 @@ export const RoleBasedNavigation: React.FC<RoleBasedNavigationProps> = ({
 
       {/* Authentication */}
       <div className="mt-6 mb-2">
-        <h2 className="px-4 text-xs font-semibold text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">
+        <h2 className="px-4 mt-6 text-xs font-semibold text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">
           Account
         </h2>
       </div>

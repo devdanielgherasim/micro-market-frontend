@@ -2,10 +2,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React, {useState} from 'react';
 
-import {useAuth} from '../auth/KeycloakProvider';
-import {isClient} from '../auth/roleUtils';
-import {purchaseProduct} from '../services/orderService';
-import {Product} from '../types';
+import {useAuth} from '@/auth/KeycloakProvider';
+import {isClient} from '@/auth/roleUtils';
+import {purchaseProduct} from '@/services/orderService';
+import {Product} from '@/types';
 
 interface ProductCardProps {
     product: Product;
@@ -13,7 +13,6 @@ interface ProductCardProps {
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({product, className = ''}) => {
-    // Default image if none provided
     const imageUrl = product.imageUrl || '/placeholder-product.jpg';
     const {userProfile, isAuthenticated} = useAuth();
     const [isPurchasing, setIsPurchasing] = useState(false);
@@ -26,7 +25,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({product, className = ''
             return;
         }
 
-        if (!product.inStock) {
+        if (!product.available) {
             setPurchaseError('This product is out of stock');
             return;
         }
@@ -66,7 +65,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({product, className = ''
                 />
 
                 {/* Stock badge */}
-                {!product.inStock ? (
+                {!product.available ? (
                     <div
                         className="absolute top-2 right-2 bg-danger-500 text-white text-xs font-bold px-2 py-1 rounded-md shadow-sm animate-fade-in"
                         aria-label="Product unavailable">
@@ -139,7 +138,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({product, className = ''
                     </Link>
 
                     {/* Purchase button - only show for authenticated clients and if product is in stock */}
-                    {isAuthenticated && isClient(userProfile) && product.inStock && (
+                    {isAuthenticated && isClient(userProfile) && product.available && (
                         <button
                             onClick={handlePurchase}
                             disabled={isPurchasing}

@@ -8,7 +8,7 @@ export interface Product {
   price: number;
   category: string;
   imageUrl?: string;
-  inStock: boolean;
+  available: boolean;
 }
 
 export interface Order {

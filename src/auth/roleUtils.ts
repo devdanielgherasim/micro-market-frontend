@@ -1,10 +1,10 @@
-import { KeycloakProfile } from 'keycloak-js';
+// @ts-ignore
+import {KeycloakProfile} from 'keycloak-js';
 
-// Define the roles in the system
 export enum UserRole {
-  GUEST = 'guest',
-  CLIENT = 'client',
-  ADMINISTRATOR = 'administrator'
+    GUEST = 'guest',
+    CLIENT = 'client',
+    ADMINISTRATOR = 'administrator'
 }
 
 /**
@@ -13,23 +13,19 @@ export enum UserRole {
  * @returns Array of roles or empty array if no roles found
  */
 export function extractRoles(userProfile: KeycloakProfile | null): string[] {
-  if (!userProfile) return [];
-  
-  // Check if roles are in the attributes
-  if (userProfile.attributes?.role) {
-    return Array.isArray(userProfile.attributes.role)
-      ? userProfile.attributes.role
-      : [userProfile.attributes.role];
-  }
-  
-  // Check if roles are in the realm_access property
-  // @ts-ignore - realm_access is not in the type definition but might be present
-  if (userProfile.realm_access?.roles) {
-    // @ts-ignore
-    return userProfile.realm_access.roles;
-  }
-  
-  return [];
+    if (!userProfile) return [];
+
+    if (userProfile.attributes?.role) {
+        return Array.isArray(userProfile.attributes.role)
+            ? userProfile.attributes.role
+            : [userProfile.attributes.role];
+    }
+
+    if (userProfile.realm_access?.roles) {
+        return userProfile.realm_access.roles;
+    }
+
+    return [];
 }
 
 /**
@@ -39,10 +35,10 @@ export function extractRoles(userProfile: KeycloakProfile | null): string[] {
  * @returns True if the user has the role, false otherwise
  */
 export function hasRole(userProfile: KeycloakProfile | null, role: UserRole): boolean {
-  if (!userProfile) return role === UserRole.GUEST;
-  
-  const roles = extractRoles(userProfile);
-  return roles.includes(role);
+    if (!userProfile) return role === UserRole.GUEST;
+
+    const roles = extractRoles(userProfile);
+    return roles.includes(role);
 }
 
 /**
@@ -51,7 +47,7 @@ export function hasRole(userProfile: KeycloakProfile | null, role: UserRole): bo
  * @returns True if the user is an administrator, false otherwise
  */
 export function isAdmin(userProfile: KeycloakProfile | null): boolean {
-  return hasRole(userProfile, UserRole.ADMINISTRATOR);
+    return hasRole(userProfile, UserRole.ADMINISTRATOR);
 }
 
 /**
@@ -60,7 +56,7 @@ export function isAdmin(userProfile: KeycloakProfile | null): boolean {
  * @returns True if the user is a client, false otherwise
  */
 export function isClient(userProfile: KeycloakProfile | null): boolean {
-  return hasRole(userProfile, UserRole.CLIENT);
+    return hasRole(userProfile, UserRole.CLIENT);
 }
 
 /**
@@ -69,7 +65,7 @@ export function isClient(userProfile: KeycloakProfile | null): boolean {
  * @returns True if the user is a guest, false otherwise
  */
 export function isGuest(isAuthenticated: boolean): boolean {
-  return !isAuthenticated;
+    return !isAuthenticated;
 }
 
 /**
@@ -79,8 +75,8 @@ export function isGuest(isAuthenticated: boolean): boolean {
  * @returns The highest role of the user
  */
 export function getHighestRole(userProfile: KeycloakProfile | null, isAuthenticated: boolean): UserRole {
-  if (!isAuthenticated) return UserRole.GUEST;
-  if (isAdmin(userProfile)) return UserRole.ADMINISTRATOR;
-  if (isClient(userProfile)) return UserRole.CLIENT;
-  return UserRole.GUEST;
+    if (!isAuthenticated) return UserRole.GUEST;
+    if (isAdmin(userProfile)) return UserRole.ADMINISTRATOR;
+    if (isClient(userProfile)) return UserRole.CLIENT;
+    return UserRole.GUEST;
 }

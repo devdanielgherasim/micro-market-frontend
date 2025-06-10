@@ -101,13 +101,13 @@ export const UserProfileSection: React.FC = () => {
 
             {isOpen && (
               <div className="absolute bottom-full left-0 right-0 mb-1 bg-white dark:bg-secondary-800 rounded-lg shadow-lg overflow-hidden z-10 border border-gray-200 dark:border-gray-700 animate-fade-in-up">
+                  {userProfile?.email && (
                 <div className="p-2 border-b border-gray-200 dark:border-gray-700">
                   <div className="text-xs text-gray-500 dark:text-gray-400">
-                    {userProfile?.email && (
                       <p className="truncate">{userProfile.email}</p>
-                    )}
                   </div>
                 </div>
+                  )}
                 <div className="p-1">
                   <button
                     onClick={handleLogout}
