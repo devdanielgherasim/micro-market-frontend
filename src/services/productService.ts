@@ -14,7 +14,7 @@ export async function getProducts(page: number = 0, size: number = 20): Promise<
         const url = `${API_ENDPOINTS.products}?page=${page}&size=${size}`;
         return await fetchWithTimeout<PageResponse<Product>>(url);
     } catch (error) {
-        if (process.env.NODE_ENV === 'development') {
+        if (process.env.NEXT_PUBLIC_API_URL) {
             console.error('Error fetching products:', error);
         }
         if (error instanceof ApiError) {
@@ -36,7 +36,7 @@ export async function getProductById(id: string): Promise<Product> {
         if (!id) throw new ApiError('Product ID is required', 400);
         return await fetchWithTimeout<Product>(`${API_ENDPOINTS.products}/${id}`);
     } catch (error) {
-        if (process.env.NODE_ENV === 'development') {
+        if (process.env.NEXT_PUBLIC_API_URL) {
             console.error(`Error fetching product ${id}:`, error);
         }
         if (error instanceof ApiError) {
@@ -60,7 +60,7 @@ export async function createProduct(product: Omit<Product, 'id'>): Promise<Produ
             body: JSON.stringify(product)
         });
     } catch (error) {
-        if (process.env.NODE_ENV === 'development') {
+        if (process.env.NEXT_PUBLIC_API_URL) {
             console.error('Error creating product:', error);
         }
         if (error instanceof ApiError) {
@@ -86,7 +86,7 @@ export async function updateProduct(id: string, product: Partial<Product>): Prom
             body: JSON.stringify(product)
         });
     } catch (error) {
-        if (process.env.NODE_ENV === 'development') {
+        if (process.env.NEXT_PUBLIC_API_URL) {
             console.error(`Error updating product ${id}:`, error);
         }
         if (error instanceof ApiError) {
@@ -110,7 +110,7 @@ export async function deleteProduct(id: string): Promise<void> {
             method: 'DELETE'
         });
     } catch (error) {
-        if (process.env.NODE_ENV === 'development') {
+        if (process.env.NEXT_PUBLIC_API_URL) {
             console.error(`Error deleting product ${id}:`, error);
         }
         if (error instanceof ApiError) {

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import React, {useState} from 'react';
 
 import {useAuth} from '@/auth/KeycloakProvider';
-import {isClient} from '@/auth/roleUtils';
+import {isUser} from '@/auth/roleUtils';
 import {purchaseProduct} from '@/services/orderService';
 import {Product} from '@/types';
 
@@ -13,7 +13,7 @@ interface ProductCardProps {
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({product, className = ''}) => {
-    const imageUrl = product.imageUrl || '/placeholder-product.jpg';
+    const imageUrl = product.imageUrl ?? '/placeholder-product.jpg';
     const {userProfile, isAuthenticated} = useAuth();
     const [isPurchasing, setIsPurchasing] = useState(false);
     const [purchaseError, setPurchaseError] = useState<string | null>(null);
@@ -137,8 +137,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({product, className = ''
                         </svg>
                     </Link>
 
-                    {/* Purchase button - only show for authenticated clients and if product is in stock */}
-                    {isAuthenticated && isClient(userProfile) && product.available && (
+                    {/* Purchase button - only show for authenticated users and if product is in stock */}
+                    {isAuthenticated && isUser(userProfile) && product.available && (
                         <button
                             onClick={handlePurchase}
                             disabled={isPurchasing}

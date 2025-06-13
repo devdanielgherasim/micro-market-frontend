@@ -63,7 +63,7 @@ export async function fetchWithTimeout<T>(
         if (contentType && contentType.includes('application/json')) {
             return await response.json() as T;
         } else {
-            if (process.env.NODE_ENV === 'development') {
+            if (process.env.NEXT_PUBLIC_API_URL) {
                 console.warn(`Response is not JSON: ${contentType}`);
             }
             return {} as T;

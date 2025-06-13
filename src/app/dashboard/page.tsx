@@ -3,7 +3,7 @@
 import React from 'react';
 import {ClientDashboard} from '@/components/ClientDashboard';
 import {useAuth} from '@/auth/KeycloakProvider';
-import {isClient} from '@/auth/roleUtils';
+import {isUser} from '@/auth/roleUtils';
 
 export default function DashboardPage() {
     const {userProfile, isAuthenticated, loading} = useAuth();
@@ -20,8 +20,8 @@ export default function DashboardPage() {
         );
     }
 
-    // Check if user is authenticated and has client role
-    if (!isAuthenticated || !isClient(userProfile)) {
+    // Check if user is authenticated and has user role
+    if (!isAuthenticated || !isUser(userProfile)) {
         return (
             <div className="container mx-auto px-4 py-8">
                 <div

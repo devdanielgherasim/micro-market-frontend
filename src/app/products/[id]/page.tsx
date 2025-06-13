@@ -4,7 +4,7 @@ import React, {useState} from 'react';
 import Link from 'next/link';
 import {useProduct} from '@/hooks/useProduct';
 import {useAuth} from '@/auth/KeycloakProvider';
-import {isClient} from '@/auth/roleUtils';
+import {isUser} from '@/auth/roleUtils';
 import {purchaseProduct} from '@/services/orderService';
 
 import type {AppProps} from "next/app";
@@ -189,8 +189,8 @@ export default function ProductPage({params}: any) {
                             </div>
                         )}
 
-                        {/* Purchase button - only show for authenticated clients and if product is in stock */}
-                        {isAuthenticated && isClient(userProfile) && product.available && (
+                        {/* Purchase button - only show for authenticated users and if product is in stock */}
+                        {isAuthenticated && isUser(userProfile) && product.available && (
                             <button
                                 onClick={handlePurchase}
                                 disabled={isPurchasing}

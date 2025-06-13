@@ -73,7 +73,7 @@ export const KeycloakProvider: React.FC<KeycloakProviderProps> = ({
                 const MIN_VALIDITY = 30;
 
                 const initialized = await keycloakInstance.init({
-                    enableLogging: process.env.NODE_ENV === 'development',
+                    enableLogging: process.env.NEXT_PUBLIC_API_URL,
                     pkceMethod: 'S256',
                     checkLoginIframe: false,
                     silentCheckSsoRedirectUri: typeof window !== 'undefined' ? `${window.location.origin}/silent-check-sso.html` : '',
@@ -89,7 +89,7 @@ export const KeycloakProvider: React.FC<KeycloakProviderProps> = ({
                 setToken(keycloakInstance.token);
 
                 keycloakInstance.onAuthSuccess = async () => {
-                    if (process.env.NODE_ENV === 'development') {
+                    if (process.env.NEXT_PUBLIC_API_URL) {
                         console.log('Authentication success event');
                     }
                     setIsAuthenticated(true);
@@ -98,8 +98,19 @@ export const KeycloakProvider: React.FC<KeycloakProviderProps> = ({
                     try {
                         const profile = await keycloakInstance.loadUserProfile();
                         setUserProfile(profile);
-                        if (process.env.NODE_ENV === 'development') {
+                        if (process.env.NEXT_PUBLIC_API_URL) {
                             console.log('User profile loaded after auth success');
+                            console.log('User profile:', profile);
+
+                            // Log token information for debugging
+                            if (keycloakInstance.tokenParsed) {
+                                console.log('Token parsed:', keycloakInstance.tokenParsed);
+                            }
+
+                            // Check for roles in various locations
+                            console.log('Realm roles:', profile.realm_access?.roles || 'none');
+                            console.log('Resource access:', profile.resource_access || 'none');
+                            console.log('Attributes:', profile.attributes || 'none');
                         }
                     } catch (profileError) {
                         console.error('Failed to load user profile after auth success:', profileError);
@@ -107,7 +118,7 @@ export const KeycloakProvider: React.FC<KeycloakProviderProps> = ({
                 };
 
                 keycloakInstance.onAuthRefreshSuccess = () => {
-                    if (process.env.NODE_ENV === 'development') {
+                    if (process.env.NEXT_PUBLIC_API_URL) {
                         console.log('Token refresh success event');
                     }
                     setIsAuthenticated(true);
@@ -115,7 +126,7 @@ export const KeycloakProvider: React.FC<KeycloakProviderProps> = ({
                 };
 
                 keycloakInstance.onAuthLogout = () => {
-                    if (process.env.NODE_ENV === 'development') {
+                    if (process.env.NEXT_PUBLIC_API_URL) {
                         console.log('Logout event');
                     }
                     setIsAuthenticated(false);
@@ -127,15 +138,26 @@ export const KeycloakProvider: React.FC<KeycloakProviderProps> = ({
                     try {
                         const profile = await keycloakInstance.loadUserProfile();
                         setUserProfile(profile);
-                        if (process.env.NODE_ENV === 'development') {
+                        if (process.env.NEXT_PUBLIC_API_URL) {
                             console.log('User authenticated successfully');
+                            console.log('User profile:', profile);
+
+                            // Log token information for debugging
+                            if (keycloakInstance.tokenParsed) {
+                                console.log('Token parsed:', keycloakInstance.tokenParsed);
+                            }
+
+                            // Check for roles in various locations
+                            console.log('Realm roles:', profile.realm_access?.roles || 'none');
+                            console.log('Resource access:', profile.resource_access || 'none');
+                            console.log('Attributes:', profile.attributes || 'none');
                         }
 
                         const updateTokenInterval = setInterval(() => {
                             keycloakInstance.updateToken(MIN_VALIDITY)
                                 .then((refreshed: any) => {
                                     if (refreshed) {
-                                        if (process.env.NODE_ENV === 'development') {
+                                        if (process.env.NEXT_PUBLIC_API_URL) {
                                             console.log('Token was successfully refreshed');
                                         }
                                         setToken(keycloakInstance.token);
@@ -157,12 +179,12 @@ export const KeycloakProvider: React.FC<KeycloakProviderProps> = ({
                     }
 
                     keycloakInstance.onTokenExpired = () => {
-                        if (process.env.NODE_ENV === 'development') {
+                        if (process.env.NEXT_PUBLIC_API_URL) {
                             console.log('Token expired, attempting refresh...');
                         }
                         keycloakInstance.updateToken(MIN_VALIDITY).then((refreshed: any) => {
                             if (refreshed) {
-                                if (process.env.NODE_ENV === 'development') {
+                                if (process.env.NEXT_PUBLIC_API_URL) {
                                     console.log('Token refreshed successfully after expiration');
                                 }
                                 setToken(keycloakInstance.token);
@@ -172,7 +194,7 @@ export const KeycloakProvider: React.FC<KeycloakProviderProps> = ({
                                 const currentTime = Math.floor(new Date().getTime() / 1000);
                                 const timeRemaining = expiryTime - currentTime;
 
-                                if (process.env.NODE_ENV === 'development') {
+                                if (process.env.NEXT_PUBLIC_API_URL) {
                                     console.log(`Token not refreshed, valid for ${timeRemaining} seconds`);
                                 }
                             }
@@ -225,7 +247,7 @@ export const KeycloakProvider: React.FC<KeycloakProviderProps> = ({
                     loginOptions.prompt = options.prompt;
                 }
 
-                if (process.env.NODE_ENV === 'development') {
+                if (process.env.NEXT_PUBLIC_API_URL) {
                     console.log('Redirecting to login...');
                 }
                 keycloak.login(loginOptions);
@@ -246,7 +268,7 @@ export const KeycloakProvider: React.FC<KeycloakProviderProps> = ({
     const logout = (options?: { redirectUri?: string }) => {
         if (keycloak) {
             try {
-                if (process.env.NODE_ENV === 'development') {
+                if (process.env.NEXT_PUBLIC_API_URL) {
                     console.log('Logging out user...');
                 }
                 setIsAuthenticated(false);
