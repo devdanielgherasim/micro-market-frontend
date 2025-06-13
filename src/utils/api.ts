@@ -10,7 +10,7 @@ export async function fetchWithTimeout<T>(
     const keycloak = getKeycloak();
     const headers = new Headers(options.headers);
 
-    if (keycloak && keycloak.authenticated) {
+    if (keycloak?.authenticated) {
         try {
             await keycloak.updateToken(30);
             headers.set('Authorization', `Bearer ${keycloak.token}`);
@@ -38,6 +38,8 @@ export async function fetchWithTimeout<T>(
 
     try {
         const response = await Promise.race([fetchPromise, timeoutPromise]);
+
+        console.log('Response:', response);
 
         if (!response.ok) {
             // Try to parse error response as JSON, but handle cases where it's not valid JSON
