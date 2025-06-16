@@ -1,33 +1,20 @@
 # GitLab CI/CD Pipeline for Micro Market Frontend
 # This pipeline builds and pushes a Docker image to Azure Container Registry
-
-# Define the stages for the pipeline
 stages:
   - test
   - build
   - deploy
 
-# Variables used throughout the pipeline
 variables:
-  # Docker image name and tag
   DOCKER_IMAGE_NAME: "micro-market-frontend"
   DOCKER_IMAGE_TAG: $CI_COMMIT_SHORT_SHA
 
-  # Azure Container Registry details
-  # These variables should be set in GitLab CI/CD settings
-  # AZURE_REGISTRY_NAME: e.g., "myregistry.azurecr.io"
-  # ARM_CLIENT_ID: Service Principal ID for ACR authentication
-  # ARM_CLIENT_SECRET: Service Principal Secret for ACR authentication
-
-# Include GitLab security scanning templates
 include:
   - template: Security/SAST.gitlab-ci.yml
 
-# Security scanning job
 sast:
   stage: test
 
-# Build Docker image
 build_docker:
   stage: build
   image: docker:24.0.5
@@ -47,7 +34,6 @@ build_docker:
     - master
     - tags
 
-# Push Docker image to Azure Container Registry
 push_to_acr:
   stage: deploy
   image: docker:24.0.5
@@ -57,17 +43,16 @@ push_to_acr:
     DOCKER_TLS_CERTDIR: "/certs"
   before_script:
     - docker info
-    # Login to Azure Container Registry using Service Principal
     - echo "Logging in to Azure Container Registry..."
-    - echo "$ARM_CLIENT_SECRET" | docker login $AZURE_REGISTRY_NAME -u "$ARM_CLIENT_ID" --password-stdin
+    - echo "$ARM_CLIENT_SECRET" | docker login $CONTAINER_REGISTRY_NAME -u "$ARM_CLIENT_ID" --password-stdin
   script:
     - echo "Tagging Docker image for Azure Container Registry..."
-    - docker tag $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG $AZURE_REGISTRY_NAME/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
-    - docker tag $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG $AZURE_REGISTRY_NAME/$DOCKER_IMAGE_NAME:latest
+    - docker tag $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG $CONTAINER_REGISTRY_NAME/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
+    - docker tag $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG $CONTAINER_REGISTRY_NAME/$DOCKER_IMAGE_NAME:latest
 
     - echo "Pushing Docker image to Azure Container Registry..."
-    - docker push $AZURE_REGISTRY_NAME/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
-    - docker push $AZURE_REGISTRY_NAME/$DOCKER_IMAGE_NAME:latest
+    - docker push $CONTAINER_REGISTRY_NAME/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
+    - docker push $CONTAINER_REGISTRY_NAME/$DOCKER_IMAGE_NAME:latest
 
     - echo "Docker image pushed successfully to Azure Container Registry"
   only:
