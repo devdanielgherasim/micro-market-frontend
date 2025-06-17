@@ -1,5 +1,3 @@
-# GitLab CI/CD Pipeline for Micro Market Frontend
-# This pipeline builds and pushes a Docker image to Azure Container Registry
 stages:
   - test
   - build
@@ -32,15 +30,13 @@ build_and_push:
     - echo "Docker image built successfully"
 
     - echo "Tagging Docker image for Azure Container Registry..."
-    - docker tag $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG $CONTAINER_REGISTRY_NAME/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
-    - docker tag $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG $CONTAINER_REGISTRY_NAME/$DOCKER_IMAGE_NAME:latest
+    - docker tag $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG /$PROJECT_NAMESPACE/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
+    - docker tag $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG $CONTAINER_REGISTRY_NAME/$PROJECT_NAMESPACE/$DOCKER_IMAGE_NAME:latest
 
     - echo "Pushing Docker image to Azure Container Registry..."
-    - docker push $CONTAINER_REGISTRY_NAME/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
-    - docker push $CONTAINER_REGISTRY_NAME/$DOCKER_IMAGE_NAME:latest
+    - docker push $CONTAINER_REGISTRY_NAME/$PROJECT_NAMESPACE/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
+    - docker push $CONTAINER_REGISTRY_NAME/$PROJECT_NAMESPACE/$DOCKER_IMAGE_NAME:latest
 
     - echo "Docker image pushed successfully to Azure Container Registry"
   only:
     - main
-    - master
-    - tags
