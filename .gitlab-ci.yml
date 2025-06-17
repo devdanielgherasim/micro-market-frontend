@@ -3,7 +3,6 @@
 stages:
   - test
   - build
-  - deploy
 
 variables:
   DOCKER_IMAGE_NAME: "micro-market-frontend"
@@ -15,27 +14,8 @@ include:
 sast:
   stage: test
 
-build_docker:
+build_and_push:
   stage: build
-  image: docker:24.0.5
-  services:
-    - docker:24.0.5-dind
-  variables:
-    DOCKER_TLS_CERTDIR: "/certs"
-  before_script:
-    - docker info
-  script:
-    - echo "Building Docker image..."
-    - docker build -t $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG .
-    - docker tag $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG $DOCKER_IMAGE_NAME:latest
-    - echo "Docker image built successfully"
-  only:
-    - main
-    - master
-    - tags
-
-push_to_acr:
-  stage: deploy
   image: docker:24.0.5
   services:
     - docker:24.0.5-dind
@@ -46,6 +26,11 @@ push_to_acr:
     - echo "Logging in to Azure Container Registry..."
     - echo "$ARM_CLIENT_SECRET" | docker login $CONTAINER_REGISTRY_NAME -u "$ARM_CLIENT_ID" --password-stdin
   script:
+    - echo "Building Docker image..."
+    - docker build -t $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG .
+    - docker tag $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG $DOCKER_IMAGE_NAME:latest
+    - echo "Docker image built successfully"
+
     - echo "Tagging Docker image for Azure Container Registry..."
     - docker tag $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG $CONTAINER_REGISTRY_NAME/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
     - docker tag $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG $CONTAINER_REGISTRY_NAME/$DOCKER_IMAGE_NAME:latest
@@ -59,5 +44,3 @@ push_to_acr:
     - main
     - master
     - tags
-  needs:
-    - build_docker
