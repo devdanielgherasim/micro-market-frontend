@@ -70,31 +70,10 @@ export function extractRoles(userProfile: KeycloakProfile | null): string[] {
         }
     }
 
-    // Fallback to assigning roles based on username
-    if (userProfile.username) {
-        if (userProfile.username.toLowerCase().includes('admin')) {
-            if (process.env.NEXT_PUBLIC_API_URL) {
-                console.log('[Auth] Assigned admin role based on username');
-            }
-            return ['admin'];
-        }
-
-        if (userProfile.username.toLowerCase() === 'client') {
-            if (process.env.NEXT_PUBLIC_API_URL) {
-                console.log('[Auth] Assigned user role based on username');
-            }
-            return ['user'];
-        }
-
-        if (userProfile.username.toLowerCase().includes('editor')) {
-            if (process.env.NEXT_PUBLIC_API_URL) {
-                console.log('[Auth] Assigned editor role based on username');
-            }
-            return ['editor'];
-        }
+    if (process.env.NEXT_PUBLIC_API_URL) {
+        console.log('[Auth] No roles found in standard locations for user:', userProfile.username);
     }
 
-    // Fallback to assigning a default role if the user is authenticated
     if (process.env.NEXT_PUBLIC_API_URL) {
         console.log('[Auth] No roles found in user profile, assigning default user role');
     }

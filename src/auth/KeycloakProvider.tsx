@@ -1,11 +1,9 @@
 "use client";
-
-import React, {createContext, ReactNode, useContext, useEffect, useState} from 'react';
-import {initKeycloak} from './keycloak';
-// @ts-ignore
 // @ts-ignore
 import type Keycloak, {KeycloakLoginOptions, KeycloakLogoutOptions, KeycloakProfile} from 'keycloak-js';
+import React, {createContext, ReactNode, useContext, useEffect, useState} from 'react';
 
+import {initKeycloak} from './keycloak';
 
 interface AuthContextType {
     keycloak: Keycloak | null;
@@ -60,7 +58,6 @@ export const KeycloakProvider: React.FC<KeycloakProviderProps> = ({
         if (initialized) {
             return;
         }
-
         const initAuth = async () => {
             try {
                 setLoading(true);
@@ -85,7 +82,14 @@ export const KeycloakProvider: React.FC<KeycloakProviderProps> = ({
 
                 setKeycloak(keycloakInstance);
                 setInitialized(initialized);
-                setIsAuthenticated(initialized ? keycloakInstance.authenticated ?? false : false);
+
+                const isAuth = initialized ? keycloakInstance.authenticated ?? false : false;
+                setIsAuthenticated(isAuth);
+
+                if (typeof window !== 'undefined') {
+                    localStorage.setItem('isAuthenticated', isAuth.toString());
+                }
+
                 setToken(keycloakInstance.token);
 
                 keycloakInstance.onAuthSuccess = async () => {
@@ -93,6 +97,9 @@ export const KeycloakProvider: React.FC<KeycloakProviderProps> = ({
                         console.log('Authentication success event');
                     }
                     setIsAuthenticated(true);
+                    if (typeof window !== 'undefined') {
+                        localStorage.setItem('isAuthenticated', 'true');
+                    }
                     setToken(keycloakInstance.token);
 
                     try {
@@ -102,12 +109,10 @@ export const KeycloakProvider: React.FC<KeycloakProviderProps> = ({
                             console.log('User profile loaded after auth success');
                             console.log('User profile:', profile);
 
-                            // Log token information for debugging
                             if (keycloakInstance.tokenParsed) {
                                 console.log('Token parsed:', keycloakInstance.tokenParsed);
                             }
 
-                            // Check for roles in various locations
                             console.log('Realm roles:', profile.realm_access?.roles || 'none');
                             console.log('Resource access:', profile.resource_access || 'none');
                             console.log('Attributes:', profile.attributes || 'none');
@@ -122,6 +127,10 @@ export const KeycloakProvider: React.FC<KeycloakProviderProps> = ({
                         console.log('Token refresh success event');
                     }
                     setIsAuthenticated(true);
+                    // Store authentication state in localStorage
+                    if (typeof window !== 'undefined') {
+                        localStorage.setItem('isAuthenticated', 'true');
+                    }
                     setToken(keycloakInstance.token);
                 };
 
@@ -132,6 +141,10 @@ export const KeycloakProvider: React.FC<KeycloakProviderProps> = ({
                     setIsAuthenticated(false);
                     setUserProfile(null);
                     setToken(undefined);
+                    // Remove authentication state from localStorage
+                    if (typeof window !== 'undefined') {
+                        localStorage.removeItem('isAuthenticated');
+                    }
                 };
 
                 if (initialized && keycloakInstance.authenticated) {
@@ -274,6 +287,10 @@ export const KeycloakProvider: React.FC<KeycloakProviderProps> = ({
                 setIsAuthenticated(false);
                 setUserProfile(null);
                 setToken(undefined);
+                // Remove authentication state from localStorage
+                if (typeof window !== 'undefined') {
+                    localStorage.removeItem('isAuthenticated');
+                }
 
                 const logoutOptions: KeycloakLogoutOptions = {
                     redirectUri: options?.redirectUri ?? window.location.origin

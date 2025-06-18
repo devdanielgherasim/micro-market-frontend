@@ -1,6 +1,5 @@
 import React from 'react';
 import {RoleBasedNavigation} from './RoleBasedNavigation';
-import {UserProfileSection} from '../auth/UserProfileSection';
 
 interface SidebarProps {
     className?: string;
@@ -45,10 +44,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </div>
             </div>
 
-            <div
-                className="p-3 sm:p-4 border-t border-secondary-200 dark:border-secondary-800/50 bg-secondary-50 dark:bg-secondary-800/80 backdrop-blur-sm">
-                <UserProfileSection/>
-            </div>
         </div>
     );
 };
