@@ -1,4 +1,5 @@
 import axios, {AxiosInstance, AxiosRequestConfig} from 'axios';
+
 import {getKeycloak} from '@/auth/keycloak';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081/api';
@@ -13,8 +14,6 @@ const createAPI = (): AxiosInstance => {
 
     api.interceptors.request.use(
         async (config) => {
-            // @ts-ignore
-            config.headers ??= {};
 
             const keycloak = getKeycloak();
 

@@ -1,20 +1,12 @@
 "use client"
 
-import React, {useState} from 'react';
 import Link from 'next/link';
-import {useProduct} from '@/hooks/useProduct';
+import React, {useState} from 'react';
+
 import {useAuth} from '@/auth/KeycloakProvider';
-import {isUser} from '@/auth/roleUtils';
+import {useProduct} from '@/hooks/useProduct';
 import {purchaseProduct} from '@/services/orderService';
 
-import type {AppProps} from "next/app";
-
-interface ProductPageParams extends AppProps {
-    params: {
-        id: string;
-    };
-    searchParams: Record<string, string | string[] | undefined>;
-}
 
 export default function ProductPage({params}: any) {
     const {id} = params;
@@ -30,7 +22,7 @@ export default function ProductPage({params}: any) {
             return;
         }
 
-        if (!product?.available) {
+        if (!product?.isAvailable) {
             setPurchaseError('This product is out of stock');
             return;
         }
@@ -89,7 +81,7 @@ export default function ProductPage({params}: any) {
                     className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 text-yellow-700 dark:text-yellow-400 px-4 py-3 rounded-lg shadow-sm"
                     role="alert">
                     <h2 className="text-lg font-semibold mb-2">Product Not Found</h2>
-                    <p>The product you're looking for doesn't exist or has been removed.</p>
+                    <p>The product you&#39;re looking for doesn&#39;t exist or has been removed.</p>
                     <Link
                         href="/products"
                         className="inline-block mt-4 px-4 py-2 bg-primary-50 dark:bg-primary-900/10 text-primary-600 dark:text-primary-400 rounded-md hover:bg-primary-100 dark:hover:bg-primary-900/20 transition-colors"
@@ -121,7 +113,6 @@ export default function ProductPage({params}: any) {
             <div
                 className="bg-white dark:bg-secondary-800 rounded-xl shadow-card dark:shadow-secondary-900/20 overflow-hidden">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Product Image */}
                     <div
                         className="relative h-64 sm:h-80 md:h-96 w-full bg-secondary-100 dark:bg-secondary-700/50 flex items-center justify-center">
                         <img
@@ -131,8 +122,7 @@ export default function ProductPage({params}: any) {
                             loading="lazy"
                         />
 
-                        {/* Stock badge */}
-                        {!product.available ? (
+                        {!product.isAvailable ? (
                             <div
                                 className="absolute top-4 right-4 bg-danger-500 text-white text-sm font-bold px-3 py-1 rounded-md shadow-sm"
                                 aria-label="Product unavailable"
@@ -149,7 +139,6 @@ export default function ProductPage({params}: any) {
                         )}
                     </div>
 
-                    {/* Product Details */}
                     <div className="p-6">
                         <div className="mb-4">
                             <div className="flex items-center">
@@ -174,7 +163,6 @@ export default function ProductPage({params}: any) {
                             </p>
                         </div>
 
-                        {/* Purchase status messages */}
                         {purchaseError && (
                             <div
                                 className="mb-4 p-3 text-sm text-red-700 bg-red-100 dark:bg-red-900/20 dark:text-red-400 rounded-md">
@@ -189,8 +177,7 @@ export default function ProductPage({params}: any) {
                             </div>
                         )}
 
-                        {/* Purchase button - only show for authenticated users and if product is in stock */}
-                        {isAuthenticated && isUser(userProfile) && product.available && (
+                        {isAuthenticated && product.isAvailable && (
                             <button
                                 onClick={handlePurchase}
                                 disabled={isPurchasing}

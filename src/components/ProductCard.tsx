@@ -14,7 +14,7 @@ interface ProductCardProps {
 
 export const ProductCard: React.FC<ProductCardProps> = ({product, className = ''}) => {
     const imageUrl = product.imageUrl ?? '/placeholder-product.jpg';
-    const {userProfile, isAuthenticated} = useAuth();
+    const {userProfile, tokenParsed, isAuthenticated} = useAuth();
     const [isPurchasing, setIsPurchasing] = useState(false);
     const [purchaseError, setPurchaseError] = useState<string | null>(null);
     const [purchaseSuccess, setPurchaseSuccess] = useState(false);
@@ -25,7 +25,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({product, className = ''
             return;
         }
 
-        if (!product.available) {
+        if (!product.isAvailable) {
             setPurchaseError('This product is out of stock');
             return;
         }
@@ -65,7 +65,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({product, className = ''
                 />
 
                 {/* Stock badge */}
-                {!product.available ? (
+                {!product.isAvailable ? (
                     <div
                         className="absolute top-2 right-2 bg-danger-500 text-white text-xs font-bold px-2 py-1 rounded-md shadow-sm animate-fade-in"
                         aria-label="Product unavailable">
@@ -138,7 +138,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({product, className = ''
                     </Link>
 
                     {/* Purchase button - only show for authenticated users and if product is in stock */}
-                    {isAuthenticated && isUser(userProfile) && product.available && (
+                    {isAuthenticated && isUser(tokenParsed, userProfile) && product.isAvailable && (
                         <button
                             onClick={handlePurchase}
                             disabled={isPurchasing}

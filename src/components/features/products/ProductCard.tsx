@@ -1,11 +1,11 @@
-import React, {useState} from 'react';
 import Link from 'next/link';
+import React, {useState} from 'react';
 
 import {useAuth} from '@/auth/KeycloakProvider';
 import {AuthenticatedOnly, GuestOnly} from '@/components/auth/RoleBasedAccess';
-
 import {purchaseProduct} from '@/services/orderService';
 import {Product} from '@/types';
+
 import {Button} from '../../ui/Button';
 
 interface ProductCardProps {
@@ -17,18 +17,13 @@ interface ProductCardProps {
  * Component for displaying a single product
  */
 export const ProductCard: React.FC<ProductCardProps> = ({product, className = ''}) => {
-    // State for purchase action
     const [isPurchasing, setIsPurchasing] = useState(false);
     const [purchaseError, setPurchaseError] = useState<string | null>(null);
     const [purchaseSuccess, setPurchaseSuccess] = useState(false);
 
-    // Generate a placeholder image URL based on product name
     const imageUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(product.name)}&background=0D8ABC&color=fff&size=128&bold=true&format=svg`;
-
-    // Get authentication state
     const {login, userProfile} = useAuth();
 
-    // Handle product purchase
     const handlePurchase = async () => {
         if (!userProfile || !userProfile.id) {
             setPurchaseError('User not authenticated');
@@ -40,13 +35,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({product, className = ''
             setPurchaseError(null);
             setPurchaseSuccess(false);
 
-            // Purchase the product
             await purchaseProduct(product, userProfile.id);
 
-            // Set success state
             setPurchaseSuccess(true);
 
-            // Reset success state after 3 seconds
             setTimeout(() => {
                 setPurchaseSuccess(false);
             }, 3000);
@@ -85,7 +77,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({product, className = ''
                 </div>
             </div>
 
-            {/* Error message */}
             {purchaseError && (
                 <div
                     className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-3 py-2 rounded-lg text-xs mt-2 mb-1 relative shadow-sm"
@@ -101,11 +92,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({product, className = ''
                     <span
                         className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">${product.price.toFixed(2)}</span>
                     <span className={`text-xs sm:text-sm font-medium ${
-                        product.available
+                        product.isAvailable
                             ? 'text-green-600 dark:text-green-400'
                             : 'text-red-600 dark:text-red-400'
                     }`}>
-            {product.available ? (
+            {product.isAvailable ? (
                 <span className="flex items-center">
                 <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-0.5 sm:mr-1" fill="currentColor" viewBox="0 0 20 20"
                      xmlns="http://www.w3.org/2000/svg">
@@ -147,16 +138,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({product, className = ''
                             View
                         </Button>
                     </Link>
-                    {/* Show different buttons based on authentication status */}
                     <AuthenticatedOnly>
                         <Button
                             variant={
                                 purchaseSuccess ? "success" :
-                                    product.available ? "primary" : "secondary"
+                                    product.isAvailable ? "primary" : "secondary"
                             }
                             size="xs"
                             rounded="md"
-                            disabled={!product.available || isPurchasing}
+                            disabled={!product.isAvailable || isPurchasing}
                             isLoading={isPurchasing}
                             onClick={handlePurchase}
                             className="transition-all duration-300 hover:scale-105"
@@ -176,7 +166,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({product, className = ''
                         >
                             {isPurchasing ? 'Purchasing...' :
                                 purchaseSuccess ? 'Purchased!' :
-                                    product.available ? 'Buy Now' : 'Sold Out'}
+                                    product.isAvailable ? 'Buy Now' : 'Sold Out'}
                         </Button>
                     </AuthenticatedOnly>
 
@@ -185,7 +175,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({product, className = ''
                             variant="primary"
                             size="xs"
                             rounded="md"
-                            disabled={!product.available}
+                            disabled={!product.isAvailable}
                             className="transition-all duration-300 hover:scale-105"
                             onClick={() => login()}
                             icon={
@@ -195,7 +185,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({product, className = ''
                                 </svg>
                             }
                         >
-                            {product.available ? 'Login to Buy' : 'Sold Out'}
+                            {product.isAvailable ? 'Login to Buy' : 'Sold Out'}
                         </Button>
                     </GuestOnly>
                 </div>

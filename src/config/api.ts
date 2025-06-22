@@ -1,10 +1,3 @@
-/**
- * API Configuration
- *
- * This file contains the configuration for API endpoints.
- * For Kubernetes/Ingress compatibility, we use path-based routing instead of port-based routing.
- */
-
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
 const SERVICES = {
@@ -29,6 +22,7 @@ export const API_ENDPOINTS = {
 if (!API_BASE_URL) {
     console.warn('API_BASE_URL is not set. Using development fallbacks.');
     API_ENDPOINTS.products = 'http://localhost:8088/api/products';
+    API_ENDPOINTS.orders = 'http://localhost:8090/api/orders';
     API_ENDPOINTS.auditLogs = 'http://localhost:8089/api/audit';
 }
 

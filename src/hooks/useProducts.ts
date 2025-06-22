@@ -1,6 +1,7 @@
 import {useCallback, useEffect, useState} from 'react';
-import {PaginatedApiResponse, PaginationMetadata, Product} from '@/types';
+
 import {getProducts} from '@/services/productService';
+import {PaginatedApiResponse, PaginationMetadata, Product} from '@/types';
 import {ApiError} from '@/utils/api';
 
 interface UseProductsOptions {

@@ -1,7 +1,8 @@
 import {useCallback, useEffect, useState} from 'react';
+
+import {getAuditLogs} from '@/services/auditService';
 import {AuditLogEntry, AuditLogFilter} from '@/types/audit';
 import {ApiError} from '@/utils/api';
-import {getAuditLogs} from '@/services/auditService';
 
 export function useAuditLogs(initialFilter?: AuditLogFilter) {
     const [data, setData] = useState<AuditLogEntry[]>([]);
@@ -39,17 +40,14 @@ export function useAuditLogs(initialFilter?: AuditLogFilter) {
         fetchAuditLogs();
     }, [fetchAuditLogs]);
 
-    // Update filter and trigger re-fetch
     const updateFilter = useCallback((newFilter: Partial<AuditLogFilter>) => {
         setFilter(currentFilter => ({
             ...currentFilter,
             ...newFilter,
-            // Reset to page 1 if anything other than page changes
             page: ('page' in newFilter) ? newFilter.page : 1
         }));
     }, []);
 
-    // Go to next page
     const nextPage = useCallback(() => {
         if (pagination.hasMore) {
             setFilter(currentFilter => ({
@@ -59,7 +57,6 @@ export function useAuditLogs(initialFilter?: AuditLogFilter) {
         }
     }, [pagination.hasMore]);
 
-    // Go to previous page
     const prevPage = useCallback(() => {
         setFilter(currentFilter => ({
             ...currentFilter,
@@ -67,7 +64,6 @@ export function useAuditLogs(initialFilter?: AuditLogFilter) {
         }));
     }, []);
 
-    // Reset filters to initial state
     const resetFilters = useCallback(() => {
         setFilter(initialFilter ?? {page: 1, limit: 20});
     }, [initialFilter]);

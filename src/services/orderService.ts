@@ -1,5 +1,5 @@
-import {Order, OrderProduct, Product} from '@/types';
 import {API_ENDPOINTS} from '@/config/api';
+import {Order, OrderProduct, OrderStatus, Product} from '@/types';
 import {ApiError, fetchWithTimeout, handleApiError} from '@/utils/api';
 
 /**
@@ -48,22 +48,29 @@ export async function getOrderById(id: string): Promise<Order> {
     }
 }
 
-export async function createOrder(order: Omit<Order, 'id' | 'orderDate'>): Promise<Order> {
+export async function createOrder(order: Omit<Order, 'id' | 'orderDate'> & {
+    products?: OrderProduct[]
+}): Promise<Order> {
     try {
+        if (!order.customerId) throw new ApiError('Customer ID is required', 400);
+        if ((!order.products || order.products.length === 0) && (!order.items || order.items.length === 0)) {
+            throw new ApiError('Order must contain at least one product', 400);
+        }
+
         const orderCreateDTO = {
             customerId: order.customerId,
-            shippingAddress: order.shippingAddress ?
-                `${order.shippingAddress.street}, ${order.shippingAddress.city}, ${order.shippingAddress.zipCode}` :
-                '',
-            billingAddress: '',
-            paymentMethod: 'credit_card',
-            paymentId: '',
-            items: order.products.map(product => ({
-                productId: product.productId,
-                productName: '',
-                price: 0,
-                quantity: product.quantity
-            }))
+            items: order.items || (order.products ? order.products.map(product => {
+                if (!product.productId) throw new ApiError('Product ID is required for each item', 400);
+                if (!product.quantity || product.quantity <= 0) throw new ApiError('Quantity must be positive for each item', 400);
+
+                return {
+                    productId: product.productId,
+                    productName: product.productName ?? 'Unknown Product',
+                    price: product.price ?? 1.0,
+                    quantity: product.quantity,
+                    subtotal: (product.price ?? 1.0) * product.quantity
+                };
+            }) : [])
         };
 
         return await fetchWithTimeout<Order>(API_ENDPOINTS.orders, {
@@ -76,14 +83,51 @@ export async function createOrder(order: Omit<Order, 'id' | 'orderDate'>): Promi
     }
 }
 
-export async function updateOrderStatus(id: string, status: Order['status']): Promise<Order> {
+export async function updateOrderStatus(id: string, status: OrderStatus): Promise<Order> {
     try {
         if (!id) throw new ApiError('Order ID is required', 400);
         return await fetchWithTimeout<Order>(`${API_ENDPOINTS.orders}/${id}/status/${status}`, {
             method: 'PATCH'
         });
     } catch (error) {
+        console.error(`Error updating order status ${id}:`, error);
+        throw new ApiError(handleApiError(error), error instanceof ApiError ? error.status : 500);
+    }
+}
+
+export async function updateOrder(id: string, order: Partial<Order>): Promise<Order> {
+    try {
+        if (!id) throw new ApiError('Order ID is required', 400);
+
+        const orderUpdateDTO = {
+            customerId: order.customerId,
+            status: order.status,
+            items: order.items?.map(item => ({
+                productId: item.productId,
+                productName: item.productName,
+                price: item.price,
+                quantity: item.quantity
+            }))
+        };
+
+        return await fetchWithTimeout<Order>(`${API_ENDPOINTS.orders}/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(orderUpdateDTO)
+        });
+    } catch (error) {
         console.error(`Error updating order ${id}:`, error);
+        throw new ApiError(handleApiError(error), error instanceof ApiError ? error.status : 500);
+    }
+}
+
+export async function deleteOrder(id: string): Promise<void> {
+    try {
+        if (!id) throw new ApiError('Order ID is required', 400);
+        await fetchWithTimeout<void>(`${API_ENDPOINTS.orders}/${id}`, {
+            method: 'DELETE'
+        });
+    } catch (error) {
+        console.error(`Error deleting order ${id}:`, error);
         throw new ApiError(handleApiError(error), error instanceof ApiError ? error.status : 500);
     }
 }
@@ -96,7 +140,7 @@ export async function purchaseProduct(
     try {
         if (!product) throw new ApiError('Product is required', 400);
         if (!customerId) throw new ApiError('Customer ID is required', 400);
-        if (!product.available) throw new ApiError('Product is out of stock', 400);
+        if (!product.isAvailable) throw new ApiError('Product is out of stock', 400);
         if (quantity <= 0) throw new ApiError('Quantity must be greater than 0', 400);
 
         const orderProduct: OrderProduct = {
@@ -107,17 +151,10 @@ export async function purchaseProduct(
         const expirationDate = new Date();
         expirationDate.setDate(expirationDate.getDate() + 30);
 
-        const order: Omit<Order, 'id' | 'orderDate'> = {
+        const order: Omit<Order, 'id' | 'orderDate'> & { products: OrderProduct[] } = {
             customerId,
-            products: [orderProduct],
-            status: 'pending',
-            totalAmount: product.price * quantity,
-            expirationDate: expirationDate.toISOString(),
-            shippingAddress: {
-                street: '',
-                city: '',
-                zipCode: ''
-            }
+            // @ts-ignore
+            items: [orderProduct],
         };
 
         return await createOrder(order);

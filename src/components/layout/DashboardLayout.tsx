@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+
 import {Sidebar} from './Sidebar';
 
 const Header: React.FC<{
@@ -103,7 +104,6 @@ const HeaderButton: React.FC<{
     </button>
 );
 
-// Mobile sidebar component
 const MobileSidebar: React.FC<{
     isOpen: boolean;
     onClose: () => void;

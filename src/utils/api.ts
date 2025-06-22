@@ -1,5 +1,5 @@
-import {API_TIMEOUT} from '@/config/api';
 import {getKeycloak} from '@/auth/keycloak';
+import {API_TIMEOUT} from '@/config/api';
 import {ApiErrorResponse} from '@/types';
 
 export async function fetchWithTimeout<T>(
@@ -42,7 +42,6 @@ export async function fetchWithTimeout<T>(
         console.log('Response:', response);
 
         if (!response.ok) {
-            // Try to parse error response as JSON, but handle cases where it's not valid JSON
             const errorData = await response.json().catch(() => ({
                 message: `HTTP Error: ${response.status} ${response.statusText}`,
                 status: response.status

@@ -4,7 +4,7 @@ import {AdminRoute} from '@/components/auth/RoleBasedRoute';
 export default function AdminProductsPage() {
     return (
         <AdminRoute fallback={<div>Redirecting...</div>}>
-            <HomePage/>
+            <HomePage initialSection="admin-products"/>
         </AdminRoute>
     );
 }

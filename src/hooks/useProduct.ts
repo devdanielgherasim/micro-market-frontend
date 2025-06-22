@@ -1,6 +1,7 @@
 import {useCallback, useEffect, useState} from 'react';
-import {Product} from '@/types';
+
 import {getProductById} from '@/services/productService';
+import {Product} from '@/types';
 import {ApiError} from '@/utils/api';
 
 interface UseProductOptions {

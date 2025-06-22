@@ -1,14 +1,14 @@
 "use client";
 
 import React from 'react';
-import {ClientDashboard} from '@/components/ClientDashboard';
+
 import {useAuth} from '@/auth/KeycloakProvider';
-import {isUser} from '@/auth/roleUtils';
+import {isAdmin, isUser} from '@/auth/roleUtils';
+import {Dashboard} from "@/components/features/dashboard/Dashboard";
 
 export default function DashboardPage() {
-    const {userProfile, isAuthenticated, loading} = useAuth();
+    const {userProfile, tokenParsed, isAuthenticated, loading} = useAuth();
 
-    // Show loading state
     if (loading) {
         return (
             <div className="container mx-auto px-4 py-8">
@@ -20,14 +20,13 @@ export default function DashboardPage() {
         );
     }
 
-    // Check if user is authenticated and has user role
-    if (!isAuthenticated || !isUser(userProfile)) {
+    if (!isAuthenticated || (!isUser(tokenParsed, userProfile) && !isAdmin(tokenParsed, userProfile))) {
         return (
             <div className="container mx-auto px-4 py-8">
                 <div
                     className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 text-yellow-700 dark:text-yellow-400 px-4 py-3 rounded-lg">
                     <h2 className="text-lg font-medium mb-2">Access Restricted</h2>
-                    <p>You need to be logged in as a client to access this page.</p>
+                    <p>You need to be logged in as a client or administrator to access this page.</p>
                     {!isAuthenticated && (
                         <button
                             onClick={() => window.location.href = '/'}
@@ -41,10 +40,14 @@ export default function DashboardPage() {
         );
     }
 
+    const isAdminUser = isAdmin(tokenParsed, userProfile);
+
     return (
         <div className="container mx-auto px-4 py-8">
-            <h1 className="text-3xl font-bold text-secondary-900 dark:text-white mb-6">Client Dashboard</h1>
-            <ClientDashboard/>
+            <h1 className="text-3xl font-bold text-secondary-900 dark:text-white mb-6">
+                {isAdminUser ? 'Admin Dashboard' : 'Client Dashboard'}
+            </h1>
+            <Dashboard/>
         </div>
     );
 }

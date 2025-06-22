@@ -1,9 +1,9 @@
 "use client";
 
 import React, {ReactNode} from 'react';
+
 import {useAuth} from '@/auth/KeycloakProvider';
 import {hasRole, isGuest, UserRole} from '@/auth/roleUtils';
-
 
 interface RoleBasedRouteProps {
     children: ReactNode;
@@ -16,7 +16,7 @@ export const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({
                                                                   requiredRoles,
                                                                   fallback
                                                               }) => {
-    const {isAuthenticated, userProfile} = useAuth();
+    const {isAuthenticated, userProfile, tokenParsed} = useAuth();
 
     if (process.env.NEXT_PUBLIC_API_URL) {
         console.log(`[RoleBasedRoute] Checking route access for roles: ${requiredRoles.join(', ')}`);
@@ -31,7 +31,7 @@ export const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({
     }
 
     const hasRequiredRole = requiredRoles.some(role =>
-        hasRole(userProfile, role)
+        hasRole(tokenParsed, userProfile, role)
     );
 
     if (hasRequiredRole) {

@@ -1,6 +1,8 @@
 import React from 'react';
+
 import {useOrders} from '@/hooks/useOrders';
-import {Order} from '@/types';
+import {Order, OrderStatus} from '@/types';
+
 
 interface OrderItemProps {
     order: Order;
@@ -16,17 +18,20 @@ const OrderItem: React.FC<OrderItemProps> = ({order}) => {
         });
     };
 
-    const getStatusClass = (status: Order['status']) => {
+    const getStatusClass = (status: OrderStatus) => {
         switch (status) {
-            case 'completed':
+            case OrderStatus.DELIVERED:
                 return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';
-            case 'processing':
+            case OrderStatus.PAID:
                 return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400';
-            case 'shipped':
+            case OrderStatus.SHIPPED:
                 return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400';
-            case 'pending':
+            case OrderStatus.PAYMENT_PENDING:
+            case OrderStatus.CREATED:
                 return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400';
-            case 'cancelled':
+            case OrderStatus.CANCELLED:
+            case OrderStatus.RETURNED:
+            case OrderStatus.REFUNDED:
                 return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
             default:
                 return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400';
@@ -45,16 +50,16 @@ const OrderItem: React.FC<OrderItemProps> = ({order}) => {
                     </p>
                 </div>
                 <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${getStatusClass(order.status)}`}>
-          {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+          {order.status.replace('_', ' ')}
         </span>
             </div>
             <div className="border-b border-secondary-200 dark:border-secondary-700 px-4 py-5 sm:px-6">
                 <div className="text-sm text-secondary-500 dark:text-secondary-400 space-y-3">
                     <p className="font-medium text-secondary-900 dark:text-white">Items</p>
                     <ul className="list-disc pl-5 space-y-2">
-                        {order.products.map((item) => (
-                            <li key={item.productId}>
-                                Product ID: {item.productId} - Quantity: {item.quantity}
+                        {order.items && order.items.map((item) => (
+                            <li key={item.id}>
+                                {item.productName || `Product ID: ${item.productId}`} - Quantity: {item.quantity}
                             </li>
                         ))}
                     </ul>

@@ -4,35 +4,45 @@ export interface Product {
     description: string;
     price: number;
     category: string;
-    version: string;
-    releaseDate: string;
-    publisher: string;
-    features: string;
-    requirements: string;
     imageUrl?: string;
-    available: boolean;
+    isAvailable: boolean;
+}
+
+export interface OrderItem {
+    id: number;
+    productId: number;
+    productName: string;
+    price: number;
+    quantity: number;
+    subtotal: number;
 }
 
 export interface OrderProduct {
     productId: string;
+    productName?: string;
+    price?: number;
     quantity: number;
 }
 
-export interface ShippingAddress {
-    street: string;
-    city: string;
-    zipCode: string;
+export enum OrderStatus {
+    CREATED = 'CREATED',
+    PAYMENT_PENDING = 'PAYMENT_PENDING',
+    PAID = 'PAID',
+    SHIPPED = 'SHIPPED',
+    DELIVERED = 'DELIVERED',
+    CANCELLED = 'CANCELLED',
+    RETURNED = 'RETURNED',
+    REFUNDED = 'REFUNDED'
 }
 
 export interface Order {
-    id: string;
+    id: number;
     customerId: string;
-    products: OrderProduct[];
-    status: 'pending' | 'processing' | 'shipped' | 'completed' | 'cancelled';
-    totalAmount: number;
     orderDate: string;
+    totalAmount: number;
+    status: OrderStatus;
+    items: OrderItem[];
     expirationDate?: string; // Date when the purchased products expire
-    shippingAddress?: ShippingAddress;
 }
 
 export interface ApiResponse<T> {
@@ -65,11 +75,15 @@ export interface ApiErrorResponse {
     code?: string;
 }
 
-export interface User {
-    id: string;
+export interface AuditLog {
+    id: number;
+    timestamp: string;
+    action: string;
+    entityType: string;
+    entityId: string;
     username: string;
-    email: string;
-    firstName?: string;
-    lastName?: string;
-    roles: string[];
+    details?: string;
+    ipAddress?: string;
+    userAgent?: string;
+    statusCode?: number;
 }

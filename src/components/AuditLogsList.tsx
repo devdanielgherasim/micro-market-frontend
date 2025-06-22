@@ -1,4 +1,5 @@
 import React from 'react';
+
 import {useAuditLogs} from '@/hooks/useAuditLogs';
 import {AuditActionType, AuditLogFilter, AuditResourceType} from '@/types/audit';
 
@@ -20,20 +21,17 @@ export const AuditLogsList: React.FC<AuditLogsListProps> = ({initialFilter}) => 
         refetch
     } = useAuditLogs(initialFilter);
 
-    // Format timestamp to locale date and time
     const formatTimestamp = (timestamp: string): string => {
         const date = new Date(timestamp);
         return date.toLocaleString();
     };
 
-    // Get appropriate status badge class
     const getStatusBadgeClass = (status: 'success' | 'failure'): string => {
         return status === 'success'
             ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
             : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
     };
 
-    // Get appropriate action badge class
     const getActionBadgeClass = (action: AuditActionType): string => {
         switch (action) {
             case 'create':
@@ -57,12 +55,10 @@ export const AuditLogsList: React.FC<AuditLogsListProps> = ({initialFilter}) => 
         }
     };
 
-    // Available action types for the filter
     const actionTypes: AuditActionType[] = [
         'login', 'logout', 'create', 'update', 'delete', 'view', 'export', 'import', 'permission_change'
     ];
 
-    // Available resource types for the filter
     const resourceTypes: AuditResourceType[] = [
         'product', 'order', 'user', 'customer', 'session', 'system', 'report'
     ];
@@ -118,7 +114,6 @@ export const AuditLogsList: React.FC<AuditLogsListProps> = ({initialFilter}) => 
                             ))}
                         </select>
                     </div>
-                    {/* Resource Type */}
                     <div>
                         <label htmlFor="resourceType"
                                className="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-1">Resource
