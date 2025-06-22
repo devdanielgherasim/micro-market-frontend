@@ -1,10 +1,26 @@
 import {useCallback, useEffect, useState} from 'react';
-import {ApiResponse, Order} from '@/types';
+import {ApiResponse, Order, PaginationMetadata, PaginatedApiResponse} from '@/types';
 import {API_ENDPOINTS} from '@/config/api';
 import {ApiError, fetchWithTimeout} from '@/utils/api';
 
-export function useOrders(customerId?: string): ApiResponse<Order[]> & { refetch: () => Promise<void> } {
+interface UseOrdersOptions {
+    customerId?: string;
+    page?: number;
+    size?: number;
+}
+
+export function useOrders(options?: UseOrdersOptions): PaginatedApiResponse<Order> & { refetch: () => Promise<void> } {
+    const { customerId, page = 0, size = 10 } = options || {};
+
     const [data, setData] = useState<Order[]>([]);
+    const [pagination, setPagination] = useState<PaginationMetadata>({
+        page,
+        size,
+        totalElements: 0,
+        totalPages: 0,
+        first: true,
+        last: true
+    });
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | undefined>(undefined);
 
@@ -13,13 +29,32 @@ export function useOrders(customerId?: string): ApiResponse<Order[]> & { refetch
         setError(undefined);
 
         try {
-            let url = API_ENDPOINTS.orders;
+            let url = `${API_ENDPOINTS.orders}?page=${page}&size=${size}`;
             if (customerId) {
-                url = `${API_ENDPOINTS.orders}/customer/${customerId}`;
+                url = `${API_ENDPOINTS.orders}/customer/${customerId}?page=${page}&size=${size}`;
             }
 
-            const orders = await fetchWithTimeout<Order[]>(url);
-            setData(orders);
+            const response = await fetchWithTimeout<{
+                content: Order[];
+                pageable: {
+                    pageNumber: number;
+                    pageSize: number;
+                };
+                totalElements: number;
+                totalPages: number;
+                first: boolean;
+                last: boolean;
+            }>(url);
+
+            setData(response.content || []);
+            setPagination({
+                page: response.pageable?.pageNumber || 0,
+                size: response.pageable?.pageSize || size,
+                totalElements: response.totalElements || 0,
+                totalPages: response.totalPages || 0,
+                first: response.first || true,
+                last: response.last || true
+            });
         } catch (err) {
             console.error('Failed to fetch orders:', err);
 
@@ -33,7 +68,7 @@ export function useOrders(customerId?: string): ApiResponse<Order[]> & { refetch
         } finally {
             setLoading(false);
         }
-    }, [customerId]);
+    }, [customerId, page, size]);
 
     useEffect(() => {
         fetchOrders();
@@ -41,6 +76,7 @@ export function useOrders(customerId?: string): ApiResponse<Order[]> & { refetch
 
     return {
         data,
+        pagination,
         loading,
         error,
         refetch: fetchOrders

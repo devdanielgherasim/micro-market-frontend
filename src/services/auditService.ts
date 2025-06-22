@@ -1,5 +1,4 @@
 import {API_ENDPOINTS} from '@/config/api';
-import {PageResponse} from '@/types';
 import {AuditLogEntry, AuditLogFilter, PaginatedAuditResponse} from '@/types/audit';
 import {ApiError, fetchWithTimeout} from '@/utils/api';
 
@@ -28,15 +27,7 @@ export async function getAuditLogs(filter?: AuditLogFilter): Promise<PaginatedAu
         const queryString = queryParams.toString();
         const url = queryString ? `${API_ENDPOINTS.auditLogs}?${queryString}` : API_ENDPOINTS.auditLogs;
 
-        const response = await fetchWithTimeout<PageResponse<AuditLogEntry>>(url);
-
-        return {
-            items: response.content,
-            total: response.pagination.totalElements,
-            page: response.pagination.page + 1,
-            limit: response.pagination.size,
-            hasMore: !response.pagination.last
-        };
+        return await fetchWithTimeout<PaginatedAuditResponse>(url);
     } catch (error) {
         console.error('Error fetching audit logs:', error);
         if (error instanceof ApiError) {

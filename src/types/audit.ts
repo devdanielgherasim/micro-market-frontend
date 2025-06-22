@@ -1,54 +1,68 @@
 export type AuditActionType =
-    | 'login'
-    | 'logout'
-    | 'create'
-    | 'update'
-    | 'delete'
-    | 'view'
-    | 'export'
-    | 'import'
-    | 'permission_change';
+    | 'CREATE'
+    | 'UPDATE'
+    | 'DELETE'
+    | 'LOGIN'
+    | 'LOGOUT'
+    | 'VIEW'
+    | 'EXPORT'
+    | 'IMPORT'
+    | 'PERMISSION_CHANGE';
 
-export type AuditResourceType =
-    | 'product'
-    | 'order'
-    | 'user'
-    | 'customer'
-    | 'session'
-    | 'system'
-    | 'report';
+export type AuditEntityType =
+    | 'Product'
+    | 'Order'
+    | 'User'
+    | 'Customer'
+    | 'Session'
+    | 'System'
+    | 'Report';
 
 export interface AuditLogEntry {
-    id: string;
+    id: number;
     timestamp: string;
-    userId: string;
     username: string;
-    ipAddress: string;
     action: AuditActionType;
-    resourceType: AuditResourceType;
-    resourceId?: string;
+    entityType: AuditEntityType;
+    entityId?: string;
     details?: string;
-    status: 'success' | 'failure';
-    statusCode?: number;
+    ipAddress?: string;
     userAgent?: string;
+    statusCode?: number;
 }
 
 export interface AuditLogFilter {
     startDate?: string;
     endDate?: string;
-    userId?: string;
+    username?: string;
     action?: AuditActionType;
-    resourceType?: AuditResourceType;
-    resourceId?: string;
-    status?: 'success' | 'failure';
+    entityType?: AuditEntityType;
+    entityId?: string;
     page?: number;
-    limit?: number;
+    size?: number;
+}
+
+export interface PaginationMetadata {
+    size: number;
+    last: boolean;
+    totalPages: number;
+    page: number;
+    first: boolean;
+    totalElements: number;
+}
+
+export interface Pagination {
+    metadata: PaginationMetadata;
+    page: number;
+    size: number;
+    totalElements: number;
+    totalPages: number;
+    first: boolean;
+    last: boolean;
 }
 
 export interface PaginatedAuditResponse {
     items: AuditLogEntry[];
-    total: number;
-    page: number;
-    limit: number;
-    hasMore: boolean;
+    content: AuditLogEntry[];
+    pagination: Pagination;
 }

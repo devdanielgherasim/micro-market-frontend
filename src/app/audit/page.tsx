@@ -7,8 +7,8 @@ import {AdminRoute} from '@/components/auth/RoleBasedRoute';
 import {redirect} from 'next/navigation';
 
 const defaultFilter: AuditLogFilter = {
-    page: 1,
-    limit: 20,
+    page: 0,
+    size: 20,
     startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
 };
 

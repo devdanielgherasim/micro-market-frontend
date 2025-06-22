@@ -7,12 +7,15 @@ import {Button} from '../../ui/Button';
 interface OrderCardProps {
     order: Order;
     className?: string;
+    onViewDetails: () => void;
+    onViewStatus: () => void;
 }
 
 /**
  * Component for displaying a single order
  */
-export const OrderCard: React.FC<OrderCardProps> = ({order, className = ''}) => {
+export const OrderCard: React.FC<OrderCardProps> = ({order, className = '', onViewDetails, onViewStatus}) => {
+
     const formattedDate = new Date(order.orderDate).toLocaleDateString(undefined, {
         year: 'numeric',
         month: 'short',
@@ -144,10 +147,6 @@ export const OrderCard: React.FC<OrderCardProps> = ({order, className = ''}) => 
                         Summary</h4>
                     <div className="space-y-1">
                         <div className="flex justify-between text-xs sm:text-sm">
-                            <span className="text-gray-500 dark:text-gray-400">Customer:</span>
-                            <span className="text-gray-900 dark:text-white font-medium">#{order.customerId}</span>
-                        </div>
-                        <div className="flex justify-between text-xs sm:text-sm">
                             <span className="text-gray-500 dark:text-gray-400">Items:</span>
                             <span
                                 className="text-gray-900 dark:text-white font-medium">{order.items ? order.items.reduce((sum, item) => sum + item.quantity, 0) : 0}</span>
@@ -168,6 +167,17 @@ export const OrderCard: React.FC<OrderCardProps> = ({order, className = ''}) => 
                             className="flex justify-between text-xs sm:text-sm font-medium pt-1 border-t border-gray-200 dark:border-gray-600 mt-1">
                             <span className="text-gray-700 dark:text-gray-300">Total:</span>
                             <span className="text-gray-900 dark:text-white">${order.totalAmount.toFixed(2)}</span>
+                        </div>
+                    </div>
+                </div>
+                <div className="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-2 sm:p-3 shadow-sm">
+                    <h4 className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">Customer
+                        Information</h4>
+                    <div className="space-y-1">
+                        <div className="flex flex-col text-xs sm:text-sm">
+                            <span className="text-gray-500 dark:text-gray-400">Customer ID:</span>
+                            <span
+                                className="text-gray-900 dark:text-white font-medium break-all mt-1">#{order.customerId}</span>
                         </div>
                     </div>
                 </div>
@@ -211,6 +221,7 @@ export const OrderCard: React.FC<OrderCardProps> = ({order, className = ''}) => 
                         size="xs"
                         rounded="md"
                         className="transition-all duration-300 hover:scale-105"
+                        onClick={onViewDetails}
                         icon={
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
@@ -234,6 +245,7 @@ export const OrderCard: React.FC<OrderCardProps> = ({order, className = ''}) => 
                         size="xs"
                         rounded="md"
                         className="transition-all duration-300 hover:scale-105"
+                        onClick={onViewStatus}
                         icon={
                             order.status === OrderStatus.DELIVERED ? (
                                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
