@@ -49,10 +49,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({product, className = ''
 
     return (
         <article
-            className={`group bg-white dark:bg-secondary-800 rounded-xl shadow-card dark:shadow-secondary-900/20 overflow-hidden transition-all duration-300 hover:shadow-card-hover dark:hover:shadow-secondary-900/30 hover:translate-y-[-3px] ${className}`}
+            className={`group bg-white dark:bg-secondary-800 rounded-xl shadow-card dark:shadow-secondary-900/20 overflow-hidden transition-all duration-300 hover:shadow-card-hover dark:hover:shadow-secondary-900/30 hover:translate-y-[-3px] flex flex-col ${className}`}
         >
             <div
-                className="relative h-48 sm:h-52 md:h-56 w-full bg-secondary-100 dark:bg-secondary-700/50 overflow-hidden">
+                className="relative h-48 sm:h-52 md:h-56 laptop:h-52 w-full bg-secondary-100 dark:bg-secondary-700/50 overflow-hidden">
                 <Image
                     src={imageUrl}
                     alt={product.name}
@@ -88,15 +88,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({product, className = ''
                 </div>
             </div>
 
-            <div className="p-4 sm:p-5">
-                <div className="mb-2">
+            <div className="p-4 sm:p-5 laptop:p-4 flex-1 flex flex-col">
+                <div className="mb-2 laptop:mb-1.5">
                     <div className="flex justify-between items-start">
-                        <h3 className="text-lg font-semibold text-secondary-900 dark:text-white truncate group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                        <h3 className="text-lg laptop:text-base font-semibold text-secondary-900 dark:text-white truncate group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                             {product.name}
                         </h3>
                     </div>
 
-                    <div className="mt-1 flex items-center">
+                    <div className="mt-1 laptop:mt-0.5 flex items-center">
             <span
                 className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary-100 text-secondary-800 dark:bg-secondary-700 dark:text-secondary-300 transition-colors">
               {product.category}
@@ -104,7 +104,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({product, className = ''
                     </div>
                 </div>
 
-                <p className="text-sm text-secondary-500 dark:text-secondary-400 line-clamp-2 mb-4 h-10">
+                <p className="text-sm laptop:text-xs text-secondary-500 dark:text-secondary-400 line-clamp-2 mb-4 laptop:mb-3 h-10 laptop:h-8">
                     {product.description}
                 </p>
 
@@ -123,14 +123,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({product, className = ''
                     </div>
                 )}
 
-                <div className="flex flex-col space-y-2">
+                <div className="flex flex-col space-y-2 mt-auto">
                     <Link
                         href={`/products/${product.id}`}
-                        className="inline-flex items-center justify-center w-full px-4 py-2 text-sm font-medium rounded-lg bg-primary-50 dark:bg-primary-900/10 text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/20 transition-colors"
+                        className="inline-flex items-center justify-center w-full px-4 py-2 laptop:py-1.5 text-sm laptop:text-xs font-medium rounded-lg bg-primary-50 dark:bg-primary-900/10 text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/20 transition-colors"
                         aria-label={`View details for ${product.name}`}
                     >
                         View Details
-                        <svg className="ml-1 w-4 h-4 transition-transform group-hover:translate-x-1" fill="none"
+                        <svg className="ml-1 w-4 h-4 laptop:w-3.5 laptop:h-3.5 transition-transform group-hover:translate-x-1" fill="none"
                              viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
                                   d="M14 5l7 7m0 0l-7 7m7-7H3"/>
@@ -142,7 +142,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({product, className = ''
                         <button
                             onClick={handlePurchase}
                             disabled={isPurchasing}
-                            className={`inline-flex items-center justify-center w-full px-4 py-2 text-sm font-medium rounded-lg 
+                            className={`inline-flex items-center justify-center w-full px-4 py-2 laptop:py-1.5 text-sm laptop:text-xs font-medium rounded-lg 
                 ${isPurchasing
                                 ? 'bg-secondary-200 text-secondary-500 dark:bg-secondary-700 dark:text-secondary-400 cursor-not-allowed'
                                 : 'bg-success-50 text-success-700 hover:bg-success-100 dark:bg-success-900/10 dark:text-success-400 dark:hover:bg-success-900/20'} 
@@ -152,7 +152,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({product, className = ''
                             {isPurchasing ? (
                                 <>
                                     <svg
-                                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-secondary-500 dark:text-secondary-400"
+                                        className="animate-spin -ml-1 mr-2 h-4 w-4 laptop:h-3.5 laptop:w-3.5 text-secondary-500 dark:text-secondary-400"
                                         fill="none" viewBox="0 0 24 24">
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
                                                 strokeWidth="4"></circle>
@@ -163,7 +163,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({product, className = ''
                                 </>
                             ) : (
                                 <>
-                                    <svg className="mr-1 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <svg className="mr-1 w-4 h-4 laptop:w-3.5 laptop:h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
                                               d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
                                     </svg>

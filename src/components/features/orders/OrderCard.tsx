@@ -84,28 +84,28 @@ export const OrderCard: React.FC<OrderCardProps> = ({order, className = '', onVi
 
     return (
         <div
-            className={`border border-gray-200 dark:border-gray-700 rounded-xl p-3 sm:p-4 md:p-5 shadow-md hover:shadow-lg transition-all duration-300 dark:bg-gray-800 hover:translate-y-[-2px] ${className}`}>
+            className={`border border-gray-200 dark:border-gray-700 rounded-xl p-3 sm:p-4 md:p-5 laptop:p-6 shadow-md hover:shadow-lg transition-all duration-300 dark:bg-gray-800 hover:translate-y-[-2px] flex flex-col ${className}`}>
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:mb-4">
                 <div className="flex items-start w-full">
                     <div
-                        className={`flex-shrink-0 mr-3 ${statusInfo.bgColor} rounded-lg p-1.5 sm:p-2 w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center shadow-sm`}>
-                        <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 flex items-center justify-center">
+                        className={`flex-shrink-0 mr-3 ${statusInfo.bgColor} rounded-lg p-1.5 sm:p-2 w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 laptop:w-14 laptop:h-14 flex items-center justify-center shadow-sm`}>
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 laptop:w-9 laptop:h-9 flex items-center justify-center">
                             {statusInfo.icon}
                         </div>
                     </div>
                     <div className="flex-1 min-w-0">
                         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start">
-                            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white truncate">Order
+                            <h3 className="text-base sm:text-lg laptop:text-lg font-semibold text-gray-900 dark:text-white truncate">Order
                                 #{order.id}</h3>
                             <div className="flex flex-col sm:flex-row gap-1 sm:gap-2">
                 <span
-                    className={`inline-flex items-center px-2 py-0.5 mt-1 sm:mt-0 rounded-full text-xs font-medium ${statusInfo.color} whitespace-nowrap shadow-sm`}>
+                    className={`inline-flex items-center px-2 py-0.5 mt-1 sm:mt-0 laptop:px-2.5 laptop:py-0.5 rounded-full text-xs laptop:text-xs font-medium ${statusInfo.color} whitespace-nowrap shadow-sm`}>
                   {statusInfo.icon}
                     {order.status.replace('_', ' ')}
                 </span>
                                 {order.expirationDate && (
                                     <span
-                                        className={`inline-flex items-center px-2 py-0.5 mt-1 sm:mt-0 rounded-full text-xs font-medium whitespace-nowrap shadow-sm ${
+                                        className={`inline-flex items-center px-2 py-0.5 mt-1 sm:mt-0 laptop:px-2.5 laptop:py-0.5 rounded-full text-xs laptop:text-xs font-medium whitespace-nowrap shadow-sm ${
                                             new Date(order.expirationDate) < new Date()
                                                 ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800'
                                                 : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800'
@@ -135,24 +135,24 @@ export const OrderCard: React.FC<OrderCardProps> = ({order, className = '', onVi
                                 )}
                             </div>
                         </div>
-                        <p className="mt-1 text-xs sm:text-sm text-gray-600 dark:text-gray-300">Placed
+                        <p className="mt-1 text-xs sm:text-sm laptop:text-base text-gray-600 dark:text-gray-300">Placed
                             on {formattedDate}</p>
                     </div>
                 </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
-                <div className="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-2 sm:p-3 shadow-sm">
-                    <h4 className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">Order
+                <div className="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-2 sm:p-3 laptop:p-3 shadow-sm">
+                    <h4 className="text-xs sm:text-sm laptop:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2 laptop:mb-2">Order
                         Summary</h4>
                     <div className="space-y-1">
-                        <div className="flex justify-between text-xs sm:text-sm">
+                        <div className="flex justify-between text-xs sm:text-sm laptop:text-sm">
                             <span className="text-gray-500 dark:text-gray-400">Items:</span>
                             <span
                                 className="text-gray-900 dark:text-white font-medium">{order.items ? order.items.reduce((sum, item) => sum + item.quantity, 0) : 0}</span>
                         </div>
                         {order.expirationDate && (
-                            <div className="flex justify-between text-xs sm:text-sm">
+                            <div className="flex justify-between text-xs sm:text-sm laptop:text-sm">
                                 <span className="text-gray-500 dark:text-gray-400">Expires:</span>
                                 <span className={`font-medium ${
                                     new Date(order.expirationDate) < new Date()
@@ -164,47 +164,47 @@ export const OrderCard: React.FC<OrderCardProps> = ({order, className = '', onVi
                             </div>
                         )}
                         <div
-                            className="flex justify-between text-xs sm:text-sm font-medium pt-1 border-t border-gray-200 dark:border-gray-600 mt-1">
+                            className="flex justify-between text-xs sm:text-sm laptop:text-sm font-medium pt-1 border-t border-gray-200 dark:border-gray-600 mt-1 laptop:pt-1.5 laptop:mt-1.5">
                             <span className="text-gray-700 dark:text-gray-300">Total:</span>
                             <span className="text-gray-900 dark:text-white">${order.totalAmount.toFixed(2)}</span>
                         </div>
                     </div>
                 </div>
-                <div className="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-2 sm:p-3 shadow-sm">
-                    <h4 className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">Customer
+                <div className="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-2 sm:p-3 laptop:p-3 shadow-sm">
+                    <h4 className="text-xs sm:text-sm laptop:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2 laptop:mb-2">Customer
                         Information</h4>
                     <div className="space-y-1">
-                        <div className="flex flex-col text-xs sm:text-sm">
+                        <div className="flex flex-col text-xs sm:text-sm laptop:text-sm">
                             <span className="text-gray-500 dark:text-gray-400">Customer ID:</span>
                             <span
-                                className="text-gray-900 dark:text-white font-medium break-all mt-1">#{order.customerId}</span>
+                                className="text-gray-900 dark:text-white font-medium break-all mt-1 laptop:mt-1.5">#{order.customerId}</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div className="border-t border-gray-200 dark:border-gray-700 pt-3 sm:pt-4">
-                <h4 className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white mb-1 sm:mb-2">Order
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-3 sm:pt-4 laptop:pt-4 mt-auto">
+                <h4 className="text-xs sm:text-sm laptop:text-sm font-medium text-gray-900 dark:text-white mb-1 sm:mb-2 laptop:mb-2">Order
                     Items</h4>
                 <div className="bg-gray-50 dark:bg-gray-700/30 rounded-lg overflow-hidden shadow-sm">
                     <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                         <thead className="bg-gray-100 dark:bg-gray-700">
                         <tr>
                             <th scope="col"
-                                className="px-2 sm:px-3 py-1.5 sm:py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Product
+                                className="px-2 sm:px-3 laptop:px-3 py-1.5 sm:py-2 laptop:py-2 text-left text-xs laptop:text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Product
                             </th>
                             <th scope="col"
-                                className="px-2 sm:px-3 py-1.5 sm:py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Quantity
+                                className="px-2 sm:px-3 laptop:px-3 py-1.5 sm:py-2 laptop:py-2 text-right text-xs laptop:text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Quantity
                             </th>
                         </tr>
                         </thead>
                         <tbody className="bg-gray-50 dark:bg-gray-700/30 divide-y divide-gray-200 dark:divide-gray-700">
                         {order.items && order.items.map((item) => (
                             <tr key={item.id} className="hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                                <td className="px-2 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap text-xs sm:text-sm text-gray-700 dark:text-gray-300">
+                                <td className="px-2 sm:px-3 laptop:px-3 py-1.5 sm:py-2 laptop:py-2 whitespace-nowrap text-xs sm:text-sm laptop:text-xs text-gray-700 dark:text-gray-300">
                                     {item.productName || `Product #${item.productId}`}
                                 </td>
-                                <td className="px-2 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap text-xs sm:text-sm text-right text-gray-700 dark:text-gray-300">
+                                <td className="px-2 sm:px-3 laptop:px-3 py-1.5 sm:py-2 laptop:py-2 whitespace-nowrap text-xs sm:text-sm laptop:text-xs text-right text-gray-700 dark:text-gray-300">
                                     {item.quantity}
                                 </td>
                             </tr>
@@ -214,13 +214,13 @@ export const OrderCard: React.FC<OrderCardProps> = ({order, className = '', onVi
                 </div>
             </div>
 
-            <div className="flex justify-end mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-200 dark:border-gray-700">
-                <div className="flex space-x-2 sm:space-x-3">
+            <div className="flex justify-end mt-3 sm:mt-4 laptop:mt-4 pt-3 sm:pt-4 laptop:pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex space-x-2 sm:space-x-3 laptop:space-x-3">
                     <Button
                         variant="outline"
                         size="xs"
                         rounded="md"
-                        className="transition-all duration-300 hover:scale-105"
+                        className="transition-all duration-300 hover:scale-105 laptop:text-xs"
                         onClick={onViewDetails}
                         icon={
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -244,7 +244,7 @@ export const OrderCard: React.FC<OrderCardProps> = ({order, className = '', onVi
                         }
                         size="xs"
                         rounded="md"
-                        className="transition-all duration-300 hover:scale-105"
+                        className="transition-all duration-300 hover:scale-105 laptop:text-xs"
                         onClick={onViewStatus}
                         icon={
                             order.status === OrderStatus.DELIVERED ? (

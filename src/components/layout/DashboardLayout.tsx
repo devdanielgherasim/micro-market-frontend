@@ -287,7 +287,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                 />
 
                 <div className="hidden lg:flex lg:flex-shrink-0">
-                    <div className="flex flex-col w-64 xl:w-72 2xl:w-80">
+                    <div className="flex flex-col w-64 xl:w-72 laptop:w-80 2xl:w-96">
                         <div
                             className="flex flex-col flex-grow border-r border-secondary-200 dark:border-secondary-800/50 pt-4 pb-4 overflow-y-auto bg-white/95 dark:bg-secondary-900/95 backdrop-blur-sm shadow-soft dark:shadow-black/20">
                             <Sidebar activeSection={activeSection} onNavigate={handleNavigate}/>

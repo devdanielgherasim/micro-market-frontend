@@ -34,10 +34,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
 
             <div
-                className="flex-1 overflow-y-auto py-3 sm:py-4 scrollbar-thin scrollbar-thumb-secondary-300 dark:scrollbar-thumb-secondary-700 scrollbar-track-transparent">
-                <div className="px-3 sm:px-4 pb-3 sm:pb-5">
-                    <div className="mb-4">
-                        <h2 className="px-4 text-xs font-semibold text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">
+                className="flex-1 overflow-y-auto py-2 sm:py-3 md:py-4 scrollbar-thin scrollbar-thumb-secondary-300 dark:scrollbar-thumb-secondary-700 scrollbar-track-transparent">
+                <div className="px-2 sm:px-3 md:px-4 pb-2 sm:pb-3 md:pb-4">
+                    <div className="mb-2 sm:mb-3 md:mb-4">
+                        <h2 className="px-3 sm:px-4 text-xs font-semibold text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">
                             Main
                         </h2>
                     </div>

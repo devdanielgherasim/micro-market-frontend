@@ -199,7 +199,7 @@ export const AdminProductList: React.FC<AdminProductListProps> = ({
                         </div>
                     ) : products.length > 0 ? (
                         <>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 laptop:grid-cols-3 gap-4 sm:gap-5 md:gap-6 laptop:gap-6">
                                 {products.map((product) => (
                                     <AdminProductCard
                                         key={product.id}

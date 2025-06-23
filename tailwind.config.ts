@@ -9,6 +9,14 @@ export default {
   ],
   darkMode: 'class',
   theme: {
+    screens: {
+      'sm': '640px',
+      'md': '768px',
+      'lg': '1024px',
+      'xl': '1280px',
+      '2xl': '1536px',
+      'laptop': '1920px', // Custom breakpoint for 1920x1080 resolution
+    },
     extend: {
       colors: {
         background: "var(--background)",
@@ -163,6 +171,7 @@ export default {
       },
       spacing: {
         '72': '18rem',
+        '76': '19rem', // Custom width for laptop resolution
         '80': '20rem',
         '96': '24rem',
         '128': '32rem',
@@ -194,7 +203,8 @@ export default {
         sm: '2rem',
         lg: '4rem',
         xl: '5rem',
-        '2xl': '6rem',
+        laptop: '6rem', // Increased padding for laptop resolution
+        '2xl': '7rem',
       },
     },
   },
