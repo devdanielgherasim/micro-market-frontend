@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+
+import { updateOrderStatus } from '@/services/orderService';
 import { Order, OrderStatus } from '@/types';
+
 import { Button } from '../../ui/Button';
-import { deleteOrder, updateOrderStatus } from '@/services/orderService';
 
 interface AdminOrderCardProps {
     order: Order;

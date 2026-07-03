@@ -1,5 +1,6 @@
-import {KeycloakProvider} from '@/auth/KeycloakProvider';
 import {Inter} from 'next/font/google';
+
+import {KeycloakProvider} from '@/auth/KeycloakProvider';
 import '../styles/globals.css';
 import {ScrollToTop} from '@/components/utils/ScrollToTop';
 

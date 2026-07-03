@@ -4,6 +4,9 @@ import React, {ReactNode} from 'react';
 
 import {useAuth} from '@/auth/KeycloakProvider';
 import {hasRole, isGuest, UserRole} from '@/auth/roleUtils';
+import {createLogger} from '@/utils/logger';
+
+const logger = createLogger('RoleBasedRoute');
 
 interface RoleBasedRouteProps {
     children: ReactNode;
@@ -18,15 +21,11 @@ export const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({
                                                               }) => {
     const {isAuthenticated, userProfile, tokenParsed} = useAuth();
 
-    if (process.env.NEXT_PUBLIC_API_URL) {
-        console.log(`[RoleBasedRoute] Checking route access for roles: ${requiredRoles.join(', ')}`);
-        console.log(`[RoleBasedRoute] User authenticated: ${isAuthenticated}`);
-    }
+    logger.debug(`Checking route access for roles: ${requiredRoles.join(', ')}`);
+    logger.debug(`User authenticated: ${isAuthenticated}`);
 
     if (requiredRoles.includes(UserRole.GUEST) && isGuest(isAuthenticated)) {
-        if (process.env.NEXT_PUBLIC_API_URL) {
-            console.log('[RoleBasedRoute] Route access granted: User is a guest and GUEST role is allowed');
-        }
+        logger.debug('Route access granted: User is a guest and GUEST role is allowed');
         return <>{children}</>;
     }
 
@@ -35,15 +34,11 @@ export const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({
     );
 
     if (hasRequiredRole) {
-        if (process.env.NEXT_PUBLIC_API_URL) {
-            console.log('[RoleBasedRoute] Route access granted: User has at least one of the required roles');
-        }
+        logger.debug('Route access granted: User has at least one of the required roles');
         return <>{children}</>;
     }
 
-    if (process.env.NEXT_PUBLIC_API_URL) {
-        console.log('[RoleBasedRoute] Route access denied: User does not have any of the required roles');
-    }
+    logger.debug('Route access denied: User does not have any of the required roles');
     return fallback ? <>{fallback}</> : null;
 };
 

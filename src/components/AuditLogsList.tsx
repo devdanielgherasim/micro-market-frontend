@@ -21,9 +21,12 @@ export const AuditLogsList: React.FC<AuditLogsListProps> = ({initialFilter}) => 
         refetch
     } = useAuditLogs(initialFilter);
 
-    // Initial data load when component mounts
+    // Initial data load when component mounts. Filter changes are applied explicitly
+    // via the "Apply Filters" button (or resetFilters), not automatically on every
+    // keystroke, so `refetch`/`filter` are intentionally excluded here.
     useEffect(() => {
         refetch();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const formatTimestamp = (timestamp: string): string => {

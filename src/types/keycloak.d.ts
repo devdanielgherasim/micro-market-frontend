@@ -5,5 +5,10 @@ declare module 'keycloak-js' {
     realm_access?: {
       roles: string[];
     };
+    resource_access?: {
+      [clientId: string]: {
+        roles: string[];
+      };
+    };
   }
 }

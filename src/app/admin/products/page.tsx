@@ -1,5 +1,5 @@
-import {HomePage} from '@/components/features/home/HomePage';
 import {AdminRoute} from '@/components/auth/RoleBasedRoute';
+import {HomePage} from '@/components/features/home/HomePage';
 
 export default function AdminProductsPage() {
     return (

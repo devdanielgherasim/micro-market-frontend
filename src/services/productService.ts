@@ -1,5 +1,5 @@
-import {PageResponse, Product} from '../types';
 import {API_ENDPOINTS} from '../config/api';
+import {PageResponse, Product} from '../types';
 import {ApiError, fetchWithTimeout, handleApiError} from '../utils/api';
 
 /**

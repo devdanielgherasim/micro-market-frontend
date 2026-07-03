@@ -1,6 +1,9 @@
 import axios, {AxiosInstance, AxiosRequestConfig} from 'axios';
 
 import {getKeycloak} from '@/auth/keycloak';
+import {createLogger} from '@/utils/logger';
+
+const logger = createLogger('ApiClient');
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081/api';
 
@@ -23,12 +26,12 @@ const createAPI = (): AxiosInstance => {
                 try {
                     const refreshed = await updateTokenPromise;
                     if (refreshed) {
-                        console.log('Token was refreshed');
+                        logger.debug('Token was refreshed');
                     }
 
                     config.headers['Authorization'] = `Bearer ${keycloak.token}`;
                 } catch (error) {
-                    console.error('Failed to refresh token', error);
+                    logger.error('Failed to refresh token', error);
                     keycloak.login();
                 }
             }
@@ -62,13 +65,13 @@ export const apiService = {
     get: <T>(url: string, config?: AxiosRequestConfig) => {
         return api.get<T>(url, config);
     },
-    post: <T>(url: string, data?: any, config?: AxiosRequestConfig) => {
+    post: <T, D = unknown>(url: string, data?: D, config?: AxiosRequestConfig) => {
         return api.post<T>(url, data, config);
     },
-    put: <T>(url: string, data?: any, config?: AxiosRequestConfig) => {
+    put: <T, D = unknown>(url: string, data?: D, config?: AxiosRequestConfig) => {
         return api.put<T>(url, data, config);
     },
-    patch: <T>(url: string, data?: any, config?: AxiosRequestConfig) => {
+    patch: <T, D = unknown>(url: string, data?: D, config?: AxiosRequestConfig) => {
         return api.patch<T>(url, data, config);
     },
     delete: <T>(url: string, config?: AxiosRequestConfig) => {

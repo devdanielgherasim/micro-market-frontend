@@ -8,7 +8,7 @@ COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN npm run build -- --no-lint
+RUN npm run build
 
 RUN mkdir -p /tmp/next-app
 RUN cp package.json /tmp/next-app/

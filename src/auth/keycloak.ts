@@ -1,5 +1,5 @@
-// @ts-ignore
 import Keycloak from 'keycloak-js';
+
 import {createLogger} from '@/utils/logger';
 
 const logger = createLogger('Keycloak');

@@ -12,7 +12,7 @@ export const Dashboard: React.FC = () => {
     const {userProfile} = useAuth();
 
     const {data: orders, loading: ordersLoading, refetch: refetchOrders} = useOrders(
-        userProfile?.id
+        {customerId: userProfile?.id}
     );
 
     const [stats, setStats] = useState({

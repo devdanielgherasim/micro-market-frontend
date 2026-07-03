@@ -11,6 +11,10 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
+    {
+        ignores: [".next/**", "out/**", "build/**", "node_modules/**", "coverage/**", "next-env.d.ts"],
+    },
+
     ...compat.extends("next/core-web-vitals", "next/typescript"),
 
     {
@@ -26,7 +30,8 @@ const eslintConfig = [
             "react-hooks/exhaustive-deps": "warn",
 
             "no-console": ["warn", {allow: ["warn", "error"]}],
-            "no-unused-vars": ["warn", {argsIgnorePattern: "^_", varsIgnorePattern: "^_"}],
+            "no-unused-vars": "off",
+            "@typescript-eslint/no-unused-vars": ["warn", {argsIgnorePattern: "^_", varsIgnorePattern: "^_"}],
             "prefer-const": "error",
             "no-var": "error",
             "eqeqeq": ["error", "always"],
@@ -37,6 +42,15 @@ const eslintConfig = [
                 "newlines-between": "always",
                 "alphabetize": {"order": "asc", "caseInsensitive": true}
             }],
+        }
+    },
+
+    {
+        // The logger module is the sanctioned console abstraction: every other
+        // file is expected to log through it instead of calling console.* directly.
+        files: ["src/utils/logger.ts"],
+        rules: {
+            "no-console": "off",
         }
     }
 ];

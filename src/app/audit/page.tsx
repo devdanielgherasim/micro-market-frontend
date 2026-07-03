@@ -1,10 +1,11 @@
 "use client";
 
-import React from 'react';
-import {AuditLogsList} from '@/components/AuditLogsList';
-import {AuditLogFilter} from '@/types/audit';
-import {AdminRoute} from '@/components/auth/RoleBasedRoute';
 import {redirect} from 'next/navigation';
+import React from 'react';
+
+import {AuditLogsList} from '@/components/AuditLogsList';
+import {AdminRoute} from '@/components/auth/RoleBasedRoute';
+import {AuditLogFilter} from '@/types/audit';
 
 const defaultFilter: AuditLogFilter = {
     page: 0,

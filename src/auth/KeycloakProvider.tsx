@@ -1,10 +1,17 @@
 "use client";
-// @ts-ignore
-import type Keycloak, {KeycloakLoginOptions, KeycloakLogoutOptions, KeycloakProfile, KeycloakTokenParsed} from 'keycloak-js';
-import React, {createContext, ReactNode, useContext, useEffect, useState} from 'react';
+import type Keycloak from 'keycloak-js';
+import type {
+    KeycloakError,
+    KeycloakLoginOptions,
+    KeycloakLogoutOptions,
+    KeycloakProfile,
+    KeycloakTokenParsed
+} from 'keycloak-js';
+import React, {createContext, ReactNode, useContext, useEffect, useRef, useState} from 'react';
+
+import {createLogger} from '@/utils/logger';
 
 import {initKeycloak} from './keycloak';
-import {createLogger} from '@/utils/logger';
 
 const logger = createLogger('KeycloakAuth');
 
@@ -58,6 +65,7 @@ export const KeycloakProvider: React.FC<KeycloakProviderProps> = ({
     const [keycloak, setKeycloak] = useState<Keycloak | null>(null);
     const [token, setToken] = useState<string | undefined>(undefined);
     const [tokenParsed, setTokenParsed] = useState<KeycloakTokenParsed | undefined>(undefined);
+    const keycloakRef = useRef<Keycloak | null>(null);
 
     useEffect(() => {
         if (initialized) {
@@ -84,7 +92,7 @@ export const KeycloakProvider: React.FC<KeycloakProviderProps> = ({
                 }
 
                 const initialized = await keycloakInstance.init({
-                    enableLogging: process.env.NEXT_PUBLIC_API_URL,
+                    enableLogging: Boolean(process.env.NEXT_PUBLIC_API_URL),
                     pkceMethod: 'S256',
                     onLoad: 'check-sso',
                     checkLoginIframe: false,
@@ -97,6 +105,7 @@ export const KeycloakProvider: React.FC<KeycloakProviderProps> = ({
                     logger.warn('Keycloak failed to initialize');
                 }
 
+                keycloakRef.current = keycloakInstance;
                 setKeycloak(keycloakInstance);
                 setInitialized(initialized);
 
@@ -191,7 +200,7 @@ export const KeycloakProvider: React.FC<KeycloakProviderProps> = ({
 
                         const updateTokenInterval = setInterval(() => {
                             keycloakInstance.updateToken(MIN_VALIDITY)
-                                .then((refreshed: any) => {
+                                .then((refreshed: boolean) => {
                                     if (refreshed) {
                                         logger.debug('Token was successfully refreshed');
                                         setToken(keycloakInstance.token);
@@ -199,7 +208,7 @@ export const KeycloakProvider: React.FC<KeycloakProviderProps> = ({
                                         setIsAuthenticated(true);
                                     }
                                 })
-                                .catch((error: any) => {
+                                .catch((error: unknown) => {
                                     logger.error('Failed to refresh the token, or the session has expired', error);
                                     clearInterval(updateTokenInterval);
                                     keycloakInstance.logout();
@@ -215,7 +224,7 @@ export const KeycloakProvider: React.FC<KeycloakProviderProps> = ({
 
                     keycloakInstance.onTokenExpired = () => {
                         logger.info('Token expired, attempting refresh...');
-                        keycloakInstance.updateToken(MIN_VALIDITY).then((refreshed: any) => {
+                        keycloakInstance.updateToken(MIN_VALIDITY).then((refreshed: boolean) => {
                             if (refreshed) {
                                 logger.debug('Token refreshed successfully after expiration');
                                 setToken(keycloakInstance.token);
@@ -228,13 +237,13 @@ export const KeycloakProvider: React.FC<KeycloakProviderProps> = ({
 
                                 logger.debug(`Token not refreshed, valid for ${timeRemaining} seconds`);
                             }
-                        }).catch((error: any) => {
+                        }).catch((error: unknown) => {
                             logger.error('Failed to refresh expired token', error);
                             keycloakInstance.logout();
                         });
                     };
 
-                    keycloakInstance.onAuthError = (errorData: any) => {
+                    keycloakInstance.onAuthError = (errorData: KeycloakError) => {
                         logger.error('Authentication error:', errorData);
                         setError(new Error('Authentication error occurred'));
                         setIsAuthenticated(false);
@@ -251,13 +260,14 @@ export const KeycloakProvider: React.FC<KeycloakProviderProps> = ({
         initAuth();
 
         return () => {
-            if (keycloak) {
-                keycloak.onTokenExpired = undefined;
-                keycloak.onAuthError = undefined;
-                keycloak.onAuthSuccess = undefined;
-                keycloak.onAuthRefreshError = undefined;
-                keycloak.onAuthRefreshSuccess = undefined;
-                keycloak.onAuthLogout = undefined;
+            const instance = keycloakRef.current;
+            if (instance) {
+                instance.onTokenExpired = undefined;
+                instance.onAuthError = undefined;
+                instance.onAuthSuccess = undefined;
+                instance.onAuthRefreshError = undefined;
+                instance.onAuthRefreshSuccess = undefined;
+                instance.onAuthLogout = undefined;
             }
         };
     }, [initialized]);

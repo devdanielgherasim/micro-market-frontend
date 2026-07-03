@@ -5,6 +5,10 @@ stages:
 variables:
   DOCKER_IMAGE_NAME: "micro-market-frontend"
   DOCKER_IMAGE_TAG: $CI_COMMIT_SHORT_SHA
+  CI_TOOLS_IMAGE: "${CONTAINER_REGISTRY_NAME}/java21-docker-azcli:latest"
+  CLOUD_PROVIDER: "aws"
+  ENVIRONMENT: "dev"
+  PROJECT_NAMESPACE: "danielgherasim-microservices"
 
 include:
   - template: Security/SAST.gitlab-ci.yml
@@ -13,31 +17,46 @@ include:
 sast:
   stage: test
 
+.node_job:
+  image: node:20-alpine
+  cache:
+    key:
+      files:
+        - package-lock.json
+    paths:
+      - .npm/
+  before_script:
+    - npm ci --cache .npm --prefer-offline
+
+lint:
+  extends: .node_job
+  stage: test
+  script:
+    - npm run lint
+
+test:
+  extends: .node_job
+  stage: test
+  script:
+    - npm run test:run
+
 build_and_push:
   stage: build
-  image: docker:24.0.5
+  image: ${CI_TOOLS_IMAGE}
+  id_tokens:
+    GITLAB_OIDC_TOKEN:
+      aud: https://gitlab.com
   services:
-    - docker:24.0.5-dind
+    - docker:dind
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "/certs/client"
   before_script:
     - docker info
-    - echo "Logging in to Azure Container Registry..."
-    - echo "$ARM_CLIENT_SECRET" | docker login $CONTAINER_REGISTRY_NAME -u "$ARM_CLIENT_ID" --password-stdin
+    - chmod +x ./build.sh
   script:
-    - echo "Building Docker image..."
-    - docker build -t $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG .
-    - docker tag $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG $DOCKER_IMAGE_NAME:latest
-    - echo "Docker image built successfully"
-
-    - echo "Tagging Docker image for Azure Container Registry..."
-    - docker tag $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG /$PROJECT_NAMESPACE/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
-    - docker tag $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG $CONTAINER_REGISTRY_NAME/$PROJECT_NAMESPACE/$DOCKER_IMAGE_NAME:latest
-
-    - echo "Pushing Docker image to Azure Container Registry..."
-    - docker push $CONTAINER_REGISTRY_NAME/$PROJECT_NAMESPACE/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
-    - docker push $CONTAINER_REGISTRY_NAME/$PROJECT_NAMESPACE/$DOCKER_IMAGE_NAME:latest
-
-    - echo "Docker image pushed successfully to Azure Container Registry"
+    - ./build.sh
   only:
     - main

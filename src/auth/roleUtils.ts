@@ -1,4 +1,3 @@
-// @ts-ignore
 import {KeycloakProfile, KeycloakTokenParsed} from 'keycloak-js';
 
 import {createLogger} from '@/utils/logger';

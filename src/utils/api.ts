@@ -39,8 +39,6 @@ export async function fetchWithTimeout<T>(
     try {
         const response = await Promise.race([fetchPromise, timeoutPromise]);
 
-        console.log('Response:', response);
-
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({
                 message: `HTTP Error: ${response.status} ${response.statusText}`,

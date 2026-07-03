@@ -1,5 +1,7 @@
 import React from 'react';
+
 import {useProducts} from '@/hooks/useProducts';
+
 import {ProductCard} from './ProductCard';
 
 export const ProductList: React.FC = () => {

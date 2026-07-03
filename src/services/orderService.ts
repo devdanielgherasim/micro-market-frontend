@@ -1,5 +1,5 @@
 import {API_ENDPOINTS} from '@/config/api';
-import {Order, OrderProduct, OrderStatus, Product} from '@/types';
+import {Order, OrderItem, OrderProduct, OrderStatus, Product} from '@/types';
 import {ApiError, fetchWithTimeout, handleApiError} from '@/utils/api';
 
 /**
@@ -48,9 +48,14 @@ export async function getOrderById(id: string): Promise<Order> {
     }
 }
 
-export async function createOrder(order: Omit<Order, 'id' | 'orderDate'> & {
-    products?: OrderProduct[]
-}): Promise<Order> {
+export interface CreateOrderRequest {
+    customerId: string;
+    items?: OrderItem[];
+    products?: OrderProduct[];
+    expirationDate?: string;
+}
+
+export async function createOrder(order: CreateOrderRequest): Promise<Order> {
     try {
         if (!order.customerId) throw new ApiError('Customer ID is required', 400);
         if ((!order.products || order.products.length === 0) && (!order.items || order.items.length === 0)) {
@@ -151,10 +156,10 @@ export async function purchaseProduct(
         const expirationDate = new Date();
         expirationDate.setDate(expirationDate.getDate() + 30);
 
-        const order: Omit<Order, 'id' | 'orderDate'> & { products: OrderProduct[] } = {
+        const order: CreateOrderRequest = {
             customerId,
-            // @ts-ignore
-            items: [orderProduct],
+            products: [orderProduct],
+            expirationDate: expirationDate.toISOString(),
         };
 
         return await createOrder(order);

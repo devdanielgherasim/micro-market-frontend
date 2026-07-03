@@ -35,7 +35,7 @@ const getLogLevel = (): LogLevel => {
 
 let currentLogLevel = getLogLevel();
 
-class Logger {
+export class Logger {
     private namespace: string;
 
     constructor(namespace: string) {
@@ -50,31 +50,31 @@ class Logger {
         return currentLogLevel;
     }
 
-    trace(message: string, ...args: any[]): void {
+    trace(message: string, ...args: unknown[]): void {
         if (this.shouldLog(LogLevel.TRACE)) {
             console.trace(this.format(message), ...args);
         }
     }
 
-    debug(message: string, ...args: any[]): void {
+    debug(message: string, ...args: unknown[]): void {
         if (this.shouldLog(LogLevel.DEBUG)) {
             console.debug(this.format(message), ...args);
         }
     }
 
-    info(message: string, ...args: any[]): void {
+    info(message: string, ...args: unknown[]): void {
         if (this.shouldLog(LogLevel.INFO)) {
             console.info(this.format(message), ...args);
         }
     }
 
-    warn(message: string, ...args: any[]): void {
+    warn(message: string, ...args: unknown[]): void {
         if (this.shouldLog(LogLevel.WARN)) {
             console.warn(this.format(message), ...args);
         }
     }
 
-    error(message: string, ...args: any[]): void {
+    error(message: string, ...args: unknown[]): void {
         if (this.shouldLog(LogLevel.ERROR)) {
             console.error(this.format(message), ...args);
         }

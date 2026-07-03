@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import React, {useState} from 'react';
 
@@ -51,11 +52,12 @@ export const AdminProductCard: React.FC<AdminProductCardProps> = ({
                 <div className="flex items-start w-full">
                     <div
                         className="flex-shrink-0 mr-3 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 rounded-lg p-1.5 sm:p-2 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 laptop:w-14 laptop:h-14 flex items-center justify-center shadow-sm">
-                        <img
+                        <Image
                             src={imageUrl}
                             alt={product.name}
+                            width={48}
+                            height={48}
                             className="w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 laptop:w-10 laptop:h-10 object-contain"
-                            loading="lazy"
                         />
                     </div>
                     <div className="flex-1 min-w-0">

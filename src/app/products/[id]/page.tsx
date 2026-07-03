@@ -1,15 +1,20 @@
 "use client"
 
+import Image from 'next/image';
 import Link from 'next/link';
-import React, {useState} from 'react';
+import React, {use, useState} from 'react';
 
 import {useAuth} from '@/auth/KeycloakProvider';
 import {useProduct} from '@/hooks/useProduct';
 import {purchaseProduct} from '@/services/orderService';
 
 
-export default function ProductPage({params}: any) {
-    const {id} = params;
+interface ProductPageProps {
+    params: Promise<{ id: string }>;
+}
+
+export default function ProductPage({params}: ProductPageProps) {
+    const {id} = use(params);
     const {product, loading, error, refetch} = useProduct(id);
     const {userProfile, isAuthenticated} = useAuth();
     const [isPurchasing, setIsPurchasing] = useState(false);
@@ -115,11 +120,12 @@ export default function ProductPage({params}: any) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div
                         className="relative h-64 sm:h-80 md:h-96 w-full bg-secondary-100 dark:bg-secondary-700/50 flex items-center justify-center">
-                        <img
+                        <Image
                             src={imageUrl}
                             alt={product.name}
-                            className="w-full h-4/5 object-contain"
-                            loading="lazy"
+                            fill
+                            sizes="(min-width: 768px) 50vw, 100vw"
+                            className="object-contain p-6"
                         />
 
                         {!product.isAvailable ? (
