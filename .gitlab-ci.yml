@@ -1,6 +1,20 @@
+# Pipeline for the Next.js frontend. Stages, security scanning (SAST +
+# Dependency + Secret + HIGH/CRITICAL gate) and the image supply chain (trivy
+# scan, syft SBOM, cosign keyless sign + verify) come from the shared template
+# in the utilities repo. Only the frontend-specific lint/test and build jobs
+# live here; the build job re-homes onto the `build` stage and exports build.env
+# so the supply-chain jobs can pick up IMAGE_REF/IMAGE_DIGEST.
+include:
+  - project: microservices1691715/utilities
+    ref: main
+    file: ci-templates/frontend.gitlab-ci.yml
+
 stages:
   - test
+  - scan
   - build
+  - sign
+  - promote
 
 variables:
   DOCKER_IMAGE_NAME: "micro-market-frontend"
@@ -9,13 +23,6 @@ variables:
   CLOUD_PROVIDER: "aws"
   ENVIRONMENT: "dev"
   PROJECT_NAMESPACE: "danielgherasim-microservices"
-
-include:
-  - template: Security/SAST.gitlab-ci.yml
-  - template: Security/Secret-Detection.gitlab-ci.yml
-
-sast:
-  stage: test
 
 .node_job:
   image: node:20-alpine
@@ -58,5 +65,10 @@ build_and_push:
     - chmod +x ./build.sh
   script:
     - ./build.sh
-  only:
-    - main
+    # Export IMAGE_REF/IMAGE_DIGEST for the sign/promote stage jobs.
+    - !reference [.export-image-ref, script]
+  artifacts:
+    reports:
+      dotenv: build.env
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
