@@ -19,10 +19,10 @@ stages:
 variables:
   DOCKER_IMAGE_NAME: "micro-market-frontend"
   DOCKER_IMAGE_TAG: $CI_COMMIT_SHORT_SHA
-  CI_TOOLS_IMAGE: "${CONTAINER_REGISTRY_NAME}/java21-docker-azcli:latest"
   CLOUD_PROVIDER: "aws"
   ENVIRONMENT: "dev"
   PROJECT_NAMESPACE: "danielgherasim-microservices"
+  CI_TOOLS_IMAGE: "${CONTAINER_REGISTRY_NAME}/${PROJECT_NAMESPACE}/${ENVIRONMENT}/ci-base-${CLOUD_PROVIDER}:latest"
 
 .node_job:
   image: node:20-alpine
