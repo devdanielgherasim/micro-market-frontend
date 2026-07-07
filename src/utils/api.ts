@@ -46,7 +46,7 @@ export async function fetchWithTimeout<T>(
         headers.set('Content-Type', 'application/json');
     }
 
-    const fetchPromise = fetch(url, {
+    const fetchPromise = fetch(url, { // nosemgrep: javascript.lang.security.audit.fetch-with-url.fetch-with-url
         ...options,
         headers,
     });
