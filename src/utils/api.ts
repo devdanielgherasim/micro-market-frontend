@@ -26,6 +26,8 @@ export async function fetchWithTimeout<T>(
         headers.set('Content-Type', 'application/json');
     }
 
+    // nosemgrep: javascript.lang.security.audit.fetch-with-url.fetch-with-url
+    // url is constructed by resolveUrl() from a config-controlled base — path never sets the origin
     const fetchPromise = fetch(url, {
         ...options,
         headers,
