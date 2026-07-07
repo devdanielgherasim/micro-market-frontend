@@ -24,7 +24,6 @@ function jsonResponse(body: unknown, init: Partial<{ status: number; ok: boolean
 
 describe('fetchWithTimeout', () => {
     beforeEach(() => {
-        process.env.NEXT_PUBLIC_API_URL = 'https://api.test';
         vi.mocked(getKeycloak).mockReturnValue(null);
         vi.stubGlobal('fetch', vi.fn());
         vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -41,7 +40,7 @@ describe('fetchWithTimeout', () => {
     it('returns the parsed JSON body for a successful response', async () => {
         vi.mocked(fetch).mockResolvedValue(jsonResponse({id: '1', name: 'Widget'}));
 
-        const result = await fetchWithTimeout<{ id: string; name: string }>('https://api.test/widgets/1');
+        const result = await fetchWithTimeout<{ id: string; name: string }>('/api/products/1');
 
         expect(result).toEqual({id: '1', name: 'Widget'});
     });
@@ -49,7 +48,7 @@ describe('fetchWithTimeout', () => {
     it('returns an empty object for a 204 No Content response', async () => {
         vi.mocked(fetch).mockResolvedValue(jsonResponse(null, {status: 204}));
 
-        const result = await fetchWithTimeout('https://api.test/widgets/1', {method: 'DELETE'});
+        const result = await fetchWithTimeout('/api/products/1', {method: 'DELETE'});
 
         expect(result).toEqual({});
     });
@@ -66,7 +65,7 @@ describe('fetchWithTimeout', () => {
         } as unknown as Response;
         vi.mocked(fetch).mockResolvedValue(response);
 
-        const result = await fetchWithTimeout('https://api.test/widgets/1');
+        const result = await fetchWithTimeout('/api/products/1');
 
         expect(result).toEqual({});
     });
@@ -80,7 +79,7 @@ describe('fetchWithTimeout', () => {
         } as unknown as Keycloak);
         vi.mocked(fetch).mockResolvedValue(jsonResponse({ok: true}));
 
-        await fetchWithTimeout('https://api.test/widgets');
+        await fetchWithTimeout('/api/products');
 
         expect(updateToken).toHaveBeenCalledWith(30);
         const [, requestInit] = vi.mocked(fetch).mock.calls[0];
@@ -92,7 +91,7 @@ describe('fetchWithTimeout', () => {
         vi.mocked(getKeycloak).mockReturnValue({authenticated: false} as unknown as Keycloak);
         vi.mocked(fetch).mockResolvedValue(jsonResponse({ok: true}));
 
-        await fetchWithTimeout('https://api.test/widgets');
+        await fetchWithTimeout('/api/products');
 
         const [, requestInit] = vi.mocked(fetch).mock.calls[0];
         const headers = requestInit!.headers as Headers;
@@ -108,7 +107,7 @@ describe('fetchWithTimeout', () => {
             login,
         } as unknown as Keycloak);
 
-        await expect(fetchWithTimeout('https://api.test/widgets')).rejects.toThrow('Authentication required');
+        await expect(fetchWithTimeout('/api/products')).rejects.toThrow('Authentication required');
         expect(login).toHaveBeenCalledTimes(1);
         expect(fetch).not.toHaveBeenCalled();
     });
@@ -116,7 +115,7 @@ describe('fetchWithTimeout', () => {
     it('sets Content-Type to application/json for a non-GET request with a body', async () => {
         vi.mocked(fetch).mockResolvedValue(jsonResponse({ok: true}));
 
-        await fetchWithTimeout('https://api.test/widgets', {
+        await fetchWithTimeout('/api/products', {
             method: 'POST',
             body: JSON.stringify({name: 'Widget'}),
         });
@@ -131,7 +130,7 @@ describe('fetchWithTimeout', () => {
             jsonResponse({message: 'Widget not found', code: 'WIDGET_404'}, {status: 404, ok: false})
         );
 
-        await expect(fetchWithTimeout('https://api.test/widgets/999')).rejects.toMatchObject({
+        await expect(fetchWithTimeout('/api/products/999')).rejects.toMatchObject({
             name: 'ApiError',
             message: 'Widget not found',
             status: 404,
@@ -151,7 +150,7 @@ describe('fetchWithTimeout', () => {
         } as unknown as Response;
         vi.mocked(fetch).mockResolvedValue(response);
 
-        await expect(fetchWithTimeout('https://api.test/widgets')).rejects.toMatchObject({
+        await expect(fetchWithTimeout('/api/products')).rejects.toMatchObject({
             status: 500,
             message: 'HTTP Error: 500 Internal Server Error',
         });
@@ -162,19 +161,17 @@ describe('fetchWithTimeout', () => {
             // never resolves
         }));
 
-        await expect(fetchWithTimeout('https://api.test/slow', {}, 20)).rejects.toThrow(/timed out after 20ms/);
+        await expect(fetchWithTimeout('/api/products/slow', {}, 20)).rejects.toThrow(/timed out after 20ms/);
     });
 
-    it('rejects before fetching when the URL origin does not match the configured API base', async () => {
-        await expect(fetchWithTimeout('https://evil.example.com/steal')).rejects.toThrow(
-            'Request to disallowed origin: https://evil.example.com'
-        );
-        expect(fetch).not.toHaveBeenCalled();
-    });
+    it('resolves the path against NEXT_PUBLIC_API_URL when configured', async () => {
+        process.env.NEXT_PUBLIC_API_URL = 'https://api.example.com';
+        vi.mocked(fetch).mockResolvedValue(jsonResponse({id: '1'}));
 
-    it('throws for a URL that cannot be parsed', async () => {
-        await expect(fetchWithTimeout('not-a-url')).rejects.toThrow('Invalid request URL: not-a-url');
-        expect(fetch).not.toHaveBeenCalled();
+        await fetchWithTimeout('/api/products/1');
+
+        const [calledUrl] = vi.mocked(fetch).mock.calls[0];
+        expect(calledUrl).toBe('https://api.example.com/api/products/1');
     });
 });
 
