@@ -22,7 +22,7 @@ variables:
   CLOUD_PROVIDER: "aws"
   ENVIRONMENT: "dev"
   PROJECT_NAMESPACE: "danielgherasim-microservices"
-  CI_TOOLS_IMAGE: "${CONTAINER_REGISTRY_NAME}/${PROJECT_NAMESPACE}/${ENVIRONMENT}/ci-base-${CLOUD_PROVIDER}:latest"
+  CI_TOOLS_IMAGE: "registry.gitlab.com/microservices1691715/utilities/ci-base-${CLOUD_PROVIDER}:latest"
 
 .node_job:
   image: node:20-alpine
