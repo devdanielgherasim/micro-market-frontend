@@ -24,6 +24,7 @@ function jsonResponse(body: unknown, init: Partial<{ status: number; ok: boolean
 
 describe('fetchWithTimeout', () => {
     beforeEach(() => {
+        process.env.NEXT_PUBLIC_API_URL = 'https://api.test';
         vi.mocked(getKeycloak).mockReturnValue(null);
         vi.stubGlobal('fetch', vi.fn());
         vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -162,6 +163,18 @@ describe('fetchWithTimeout', () => {
         }));
 
         await expect(fetchWithTimeout('https://api.test/slow', {}, 20)).rejects.toThrow(/timed out after 20ms/);
+    });
+
+    it('rejects before fetching when the URL origin does not match the configured API base', async () => {
+        await expect(fetchWithTimeout('https://evil.example.com/steal')).rejects.toThrow(
+            'Request to disallowed origin: https://evil.example.com'
+        );
+        expect(fetch).not.toHaveBeenCalled();
+    });
+
+    it('throws for a URL that cannot be parsed', async () => {
+        await expect(fetchWithTimeout('not-a-url')).rejects.toThrow('Invalid request URL: not-a-url');
+        expect(fetch).not.toHaveBeenCalled();
     });
 });
 

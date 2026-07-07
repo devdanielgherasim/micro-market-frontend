@@ -110,7 +110,7 @@ test -> scan -> build -> sign -> promote
   the `test`-stage scanners (GitLab's free-tier templates don't gate on their
   own).
 - **build**: `build_and_push` runs `./build.sh` inside the shared
-  `${CI_TOOLS_IMAGE}` (cloud-specific `ci-base-aws/azure/gcp`, built by `utilities`), then
+  `${CI_TOOLS_IMAGE}` (`registry.gitlab.com/microservices1691715/utilities/ci-base-aws/azure/gcp`), then
   exports `IMAGE_REF`/`IMAGE_DIGEST` via a `build.env` dotenv artifact for the
   downstream sign/promote jobs.
 - **sign**: Trivy CRITICAL-severity gate, Syft CycloneDX SBOM, cosign keyless

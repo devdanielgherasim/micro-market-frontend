@@ -2,11 +2,32 @@ import {getKeycloak} from '@/auth/keycloak';
 import {API_TIMEOUT} from '@/config/api';
 import {ApiErrorResponse} from '@/types';
 
+function assertAllowedOrigin(url: string): void {
+    let parsed: URL;
+    try {
+        parsed = new URL(url);
+    } catch {
+        throw new Error(`Invalid request URL: ${url}`);
+    }
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (!baseUrl) return; // no base URL configured — dev mode with localhost fallbacks
+    let allowedOrigin: string;
+    try {
+        allowedOrigin = new URL(baseUrl).origin;
+    } catch {
+        return; // misconfigured base URL — skip check rather than block all requests
+    }
+    if (parsed.origin !== allowedOrigin) {
+        throw new Error(`Request to disallowed origin: ${parsed.origin}`);
+    }
+}
+
 export async function fetchWithTimeout<T>(
     url: string,
     options: RequestInit = {},
     timeout: number = API_TIMEOUT
 ): Promise<T> {
+    assertAllowedOrigin(url);
     const keycloak = getKeycloak();
     const headers = new Headers(options.headers);
 
