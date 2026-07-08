@@ -1,0 +1,142 @@
+name: Frontend CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+  pull-requests: read
+  id-token: write
+
+env:
+  APP_NAME: micro-market-frontend
+  CLOUD_PROVIDER: ${{ secrets.CLOUD_PROVIDER || 'aws' }}
+  ENVIRONMENT: ${{ secrets.ENVIRONMENT || 'dev' }}
+  PROJECT_NAMESPACE: ${{ secrets.PROJECT_NAMESPACE || 'danielgherasim-microservices' }}
+  AWS_REGION: ${{ secrets.AWS_REGION || 'eu-central-1' }}
+  GCP_REGION: ${{ secrets.GCP_REGION || 'europe-west3' }}
+
+jobs:
+  security-scan-gate:
+    name: Security scan gate
+    uses: devdanielgherasim/micro-market-utilities/.github/workflows/security-scan-gate.yml@main
+    with:
+      codeql-languages: javascript-typescript
+
+  lint:
+    name: ESLint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run lint
+
+  test:
+    name: Vitest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run test:run
+
+  build-and-push:
+    name: Build and push Docker image
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    needs:
+      - lint
+      - test
+      - security-scan-gate
+    outputs:
+      container-registry-name: ${{ steps.registry-login.outputs.container-registry-name }}
+      image-repository: ${{ steps.resolve-after-build.outputs.image-repository }}
+      image-ref: ${{ steps.resolve-after-build.outputs.image-ref }}
+      image-digest: ${{ steps.resolve-after-build.outputs.image-digest }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: registry-login
+        name: Cloud registry login
+        uses: devdanielgherasim/micro-market-utilities/.github/actions/cloud-registry-login@main
+        with:
+          cloud-provider: ${{ env.CLOUD_PROVIDER }}
+          aws-role-arn: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          gcp-workload-identity-provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          gcp-service-account-email: ${{ secrets.GCP_SERVICE_ACCOUNT_EMAIL }}
+          gcp-region: ${{ env.GCP_REGION }}
+
+      - name: Build and push Docker image
+        env:
+          MAIN_SCRIPT_LOGIN: "true"
+          CONTAINER_REGISTRY_NAME: ${{ steps.registry-login.outputs.container-registry-name }}
+          CI_COMMIT_SHA: ${{ github.sha }}
+          CI_PROJECT_NAME: ${{ env.APP_NAME }}
+        run: |
+          set -eu
+          chmod +x ./build.sh
+          ./build.sh
+
+      - id: resolve-after-build
+        name: Resolve pushed image reference
+        uses: devdanielgherasim/micro-market-utilities/.github/actions/resolve-image-ref@main
+        with:
+          cloud-provider: ${{ env.CLOUD_PROVIDER }}
+          environment: ${{ env.ENVIRONMENT }}
+          project-namespace: ${{ env.PROJECT_NAMESPACE }}
+          aws-account-id: ${{ secrets.AWS_ACCOUNT_ID }}
+          aws-region: ${{ env.AWS_REGION }}
+          gcp-project-id: ${{ secrets.GCP_PROJECT_ID }}
+          gcp-region: ${{ env.GCP_REGION }}
+          container-registry-name: ${{ steps.registry-login.outputs.container-registry-name }}
+          image-name: ${{ env.APP_NAME }}
+
+  image-supply-chain:
+    name: Image supply chain
+    if: ${{ github.ref == 'refs/heads/main' }}
+    needs:
+      - build-and-push
+    uses: devdanielgherasim/micro-market-utilities/.github/workflows/image-supply-chain.yml@main
+    with:
+      cloud-provider: aws
+      container-registry-name: ${{ needs.build-and-push.outputs.container-registry-name }}
+      image-repository: ${{ needs.build-and-push.outputs.image-repository }}
+      image-ref: ${{ needs.build-and-push.outputs.image-ref }}
+      image-digest: ${{ needs.build-and-push.outputs.image-digest }}
+      aws-region: eu-central-1
+      gcp-region: europe-west3
+      cosign-workflow-file: ci.yml
+      deployment-repo: devdanielgherasim/micro-market-deployment
+      promoted-app: micro-market-frontend
+      trigger-promotion: false
+    secrets:
+      AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+      GCP_SERVICE_ACCOUNT_EMAIL: ${{ secrets.GCP_SERVICE_ACCOUNT_EMAIL }}
+      DEPLOYMENT_DISPATCH_PAT: ${{ secrets.DEPLOYMENT_DISPATCH_PAT }}
