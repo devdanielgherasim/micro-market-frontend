@@ -16,11 +16,11 @@ permissions:
 
 env:
   APP_NAME: micro-market-frontend
-  CLOUD_PROVIDER: ${{ secrets.CLOUD_PROVIDER || 'aws' }}
-  ENVIRONMENT: ${{ secrets.ENVIRONMENT || 'dev' }}
-  PROJECT_NAMESPACE: ${{ secrets.PROJECT_NAMESPACE || 'danielgherasim-microservices' }}
-  AWS_REGION: ${{ secrets.AWS_REGION || 'eu-central-1' }}
-  GCP_REGION: ${{ secrets.GCP_REGION || 'europe-west3' }}
+  CLOUD_PROVIDER: ${{ vars.CLOUD_PROVIDER || 'aws' }}
+  ENVIRONMENT: ${{ vars.ENVIRONMENT || 'dev' }}
+  PROJECT_NAMESPACE: ${{ vars.PROJECT_NAMESPACE || 'danielgherasim-microservices' }}
+  AWS_REGION: ${{ vars.AWS_REGION || 'eu-central-1' }}
+  GCP_REGION: ${{ vars.GCP_REGION || 'europe-west3' }}
 
 jobs:
   security-scan-gate:
