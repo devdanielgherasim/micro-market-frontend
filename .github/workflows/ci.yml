@@ -135,7 +135,7 @@ jobs:
       gcp-region: europe-west3
       deployment-repo: devdanielgherasim/micro-market-deployment
       promoted-app: micro-market-frontend
-      trigger-promotion: false
+      trigger-promotion: true
     secrets:
       AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
