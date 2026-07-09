@@ -114,15 +114,12 @@ echo "===== Building Docker Image ====="
 echo "Image: ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
 
 docker build -t "${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}" .
-docker tag "${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}" "${DOCKER_IMAGE_NAME}:latest"
 echo "Docker image built successfully"
 
 echo "===== Tagging Docker Image for ${CLOUD_PROVIDER} registry ====="
 docker tag "${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}" "${CONTAINER_REGISTRY_NAME}/${IMAGE_GROUP}/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
-docker tag "${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}" "${CONTAINER_REGISTRY_NAME}/${IMAGE_GROUP}/${DOCKER_IMAGE_NAME}:latest"
 echo "Docker image tagged successfully"
 
 echo "===== Pushing Docker Image to ${CONTAINER_REGISTRY_NAME} ====="
 docker push "${CONTAINER_REGISTRY_NAME}/${IMAGE_GROUP}/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
-docker push "${CONTAINER_REGISTRY_NAME}/${IMAGE_GROUP}/${DOCKER_IMAGE_NAME}:latest"
 echo "===== Docker image pushed successfully to ${CONTAINER_REGISTRY_NAME} ====="
