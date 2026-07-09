@@ -133,7 +133,6 @@ jobs:
       image-digest: ${{ needs.build-and-push.outputs.image-digest }}
       aws-region: eu-central-1
       gcp-region: europe-west3
-      cosign-workflow-file: ci.yml
       deployment-repo: devdanielgherasim/micro-market-deployment
       promoted-app: micro-market-frontend
       trigger-promotion: false
