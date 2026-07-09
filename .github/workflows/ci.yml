@@ -88,6 +88,8 @@ jobs:
           gcp-workload-identity-provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           gcp-service-account-email: ${{ secrets.GCP_SERVICE_ACCOUNT_EMAIL }}
           gcp-region: ${{ env.GCP_REGION }}
+          project-namespace: ${{ env.PROJECT_NAMESPACE }}
+          environment: ${{ env.ENVIRONMENT }}
 
       - name: Build and push Docker image
         env:
