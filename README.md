@@ -94,37 +94,28 @@ files, 82 tests, all passing (`npm run test:run`):
 
 ## CI/CD
 
-`.gitlab-ci.yml` includes the shared pipeline from
-`utilities/ci-templates/frontend.gitlab-ci.yml`
-(`project: microservices1691715/utilities`), giving this repo the same
-supply-chain shape as the Java services:
+CI runs on GitHub Actions (`.github/workflows/ci.yml`; migrated from GitLab
+CI, see `Sources/plans/2026-07-08-gitlab-to-github-migration.md`), giving
+this repo the same supply-chain shape as the Java services:
 
-```
-test -> scan -> build -> sign -> promote
-```
-
-- **test**: this repo's own `lint` and `test` jobs (npm, `node:20-alpine`),
-  plus GitLab's SAST/Dependency-Scanning/Secret-Detection analyzers pulled in
-  by the shared template.
-- **scan**: `report-gate` fails the pipeline on any HIGH/CRITICAL finding from
-  the `test`-stage scanners (GitLab's free-tier templates don't gate on their
-  own).
-- **build**: `build_and_push` runs `./build.sh` inside the shared
-  `${CI_TOOLS_IMAGE}` (`registry.gitlab.com/microservices1691715/utilities/ci-base-aws/azure/gcp`), then
-  exports `IMAGE_REF`/`IMAGE_DIGEST` via a `build.env` dotenv artifact for the
-  downstream sign/promote jobs.
-- **sign**: Trivy CRITICAL-severity gate, Syft CycloneDX SBOM, cosign keyless
-  sign + SBOM attestation (GitLab OIDC -> Sigstore Fulcio/Rekor).
-- **promote**: `cosign verify` gate, then a trigger job hands the built
-  image's tag to the `deployment` repo's promotion pipeline.
+- **test**: this repo's own `lint` and `test` jobs (npm, `node:20-alpine`).
+- **security-scan-gate**: calls the reusable workflow in
+  `devdanielgherasim/micro-market-utilities` — CodeQL (HIGH/CRITICAL severity
+  gate), gitleaks, dependency-review.
+- **build-and-push**: logs into the cloud registry via the shared
+  `cloud-registry-login` composite action (OIDC), runs `./build.sh`, then
+  resolves the pushed image reference/digest via `resolve-image-ref`.
+- **image-supply-chain**: calls the reusable workflow in `utilities` — Trivy
+  CRITICAL-severity gate, Syft CycloneDX SBOM, cosign keyless sign + SBOM
+  attestation (GitHub's own OIDC token, no separate audience token needed),
+  `cosign verify`, then a `repository_dispatch` trigger that hands the built
+  image's tag to the `deployment` repo's promotion workflow.
 
 `build.sh` is cloud-provider-aware (`CLOUD_PROVIDER=aws|azure|gcp`), resolving
 the registry host and per-cloud image path layout (ECR / ACR / Artifact
-Registry) the same way `utilities/build.sh` and the other service repos do.
-`PROJECT_NAMESPACE` defaults to `danielgherasim-microservices` consistently
-across `.gitlab-ci.yml` and `build.sh` in this repo — the historical
-`microservices1691715*` namespace drift documented elsewhere no longer
-applies here.
+Registry) the same way the other service repos do. `PROJECT_NAMESPACE`
+defaults to `danielgherasim-microservices` consistently across `ci.yml` and
+`build.sh` in this repo.
 
 ## Build
 
@@ -141,5 +132,5 @@ job (see above), so the build stage just builds.
   file as part of unrelated work; it's an explicitly parked, separate rework.
 - The `PROJECT_NAMESPACE`/image-path drift noted elsewhere in this project's
   history (`microservices1691717` vs `...715` vs `...716`) is **not** present
-  in this repo's current `build.sh`/`.gitlab-ci.yml` — both consistently use
-  `danielgherasim-microservices`.
+  in this repo's current `build.sh`/`.github/workflows/ci.yml` — both
+  consistently use `danielgherasim-microservices`.
